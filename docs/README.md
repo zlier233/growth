@@ -4,7 +4,7 @@
 
 ## BACKTRACKING  
 ### STRUCTURE CODE  
-```
+```javascript
 const problem = function() {
   const res = []
   helper()
@@ -28,7 +28,7 @@ const problem = function() {
 ### EXAMPLES  
 #### Permutations  
 > Given a collection of distinct integers, return all possible permutations.  
-```
+```javascript
 Input: [1,2,3]
 Output:
 [
@@ -40,7 +40,7 @@ Output:
   [3,2,1]
 ]
 ```
-```
+```javascript
 const permute = function(nums) {
   const res = []
   nums.sort((a, b) => a - b) // when the nums may contains duplicated
@@ -68,7 +68,7 @@ const permute = function(nums) {
 ```
 #### Combinations  
 > Given two integers n and k, return all possible combinations of k numbers out of 1 ... n.
-```
+```javascript
 Input: n = 4, k = 2
 Output:
 [
@@ -80,7 +80,7 @@ Output:
   [1,4],
 ]
 ```
-```
+```javascript
 const combine = function(n, k) {
   const data = [], res = []
   for (let i = 0; i < n; i++) { data[i] = i + 1 }
@@ -105,7 +105,7 @@ const combine = function(n, k) {
 > Given a set of candidate numbers (candidates) (without duplicates) and a target number (target),
 > find all unique combinations in candidates where the candidate numbers sums to target.  
 > The same repeated number may be chosen from candidates unlimited number of times.
-```
+```javascript
 Input: candidates = [2,3,5], target = 8,
 A solution set is:
 [
@@ -114,7 +114,7 @@ A solution set is:
   [3,5]
 ]
 ```
-```
+```javascript
 const combinationSum = function(candidates, target) {
   const res = []
   candidates.sort((a, b) => a - b) // when has duplicates
@@ -140,11 +140,11 @@ const combinationSum = function(candidates, target) {
 }
 ```
 > Find all possible combinations of k numbers that add up to a number n, given that only numbers from 1 to 9 can be used and each combination should be a unique set of numbers.
-```
+```javascript
 Input: k = 3, n = 9
 Output: [[1,2,6], [1,3,5], [2,3,4]]
 ```
-```
+```javascript
 const combinationSum3 = function(k, n) {
   const res = [], data = [1, 2, 3, 4, 5, 6, 7, 8, 9]
   helper(n, [], 0)
@@ -167,7 +167,7 @@ const combinationSum3 = function(k, n) {
 ```
 #### N-QUEENS
 > As the N-QUEENS description
-```
+```javascript
 const solveNQueens = function(n) {
   const board = [...Array(n)].map(_ => '.'.repeat(n)), res = []
   helper(board, 0)
@@ -208,9 +208,66 @@ const solveNQueens = function(n) {
     return true
   }
 }
+```  
+> If just count the solutions
+```javascript
+const totalNQueens = function(n) {
+  let res = 0
+  const cols = Array(n).fill(false), diag = Array(2n).fill(false), antiDiag = Array(2n).fill(false)
+  helper(0)
+  return res
+  
+  function helper(row) {
+    if (row === n) res++
+    else {
+      for (let col = 0; col < n; col++) {
+        // validate
+        if (!isValid(row, col)) continue
+        // choose
+        cols[col] = diag[row - col + n] = antiDiag[row + col] = true
+        // explore
+        helper(row + 1)
+        cols[col] = diag[row - col + n] = antiDiag[row + col] = false
+        
+      }
+    }
+  }
+  
+  function isValid(row, col) {
+    if (cols[col] || diag[row - col + n] || antiDiag[row + col]) return false
+    return true
+  }
+}
 ```
 
-
+#### Generate Parentheses
+> Given n pairs of parentheses, write a function to generate all combinations of well-formed parentheses.
+```javascript
+input: n = 3
+output: [
+  "((()))",
+  "(()())",
+  "(())()",
+  "()(())",
+  "()()()"
+]
+```  
+```javascript
+const generateParenthesis = function(n) {
+  const res = []
+  helper(0, 0, 0, '')
+  return res
+  
+  function helper(left, right, level, tmp) {
+    if (right > left || level > 2 * n) return
+    else if (level === 2 * n && left === right) res.push(tmp.slice())
+    else {
+      helper(left + 1, right, level + 1, tmp + '(')
+      helper(left, right + 1, level + 1, tmp + ')')
+    }
+  }
+}
+```
 
 
 
