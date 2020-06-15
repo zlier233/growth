@@ -2,12 +2,222 @@
 ---  
 
 
-> INTERVIEW ALGORITHMS  
+## BACKTRACKING  
+### STRUCTURE CODE  
+```
+const problem = function() {
+  const res = []
+  helper()
+  return res
+
+  function helper() {
+    // end point
+    if ()
+    else {
+      // choose
+      do something()
+      // explore
+      backtracking()
+      // un-choose
+      back to the condition that do something()
+    }
+  }
+}
+
+```
+### EXAMPLES  
+#### Permutations  
+> Given a collection of distinct integers, return all possible permutations.  
+```
+Input: [1,2,3]
+Output:
+[
+  [1,2,3],
+  [1,3,2],
+  [2,1,3],
+  [2,3,1],
+  [3,1,2],
+  [3,2,1]
+]
+```
+```
+const permute = function(nums) {
+  const res = []
+  nums.sort((a, b) => a - b) // when the nums may contains duplicated
+  helper(nums, [])
+  return res
+  
+  function helper(left, tmp) {
+    if (left.length === 0) res.push(tmp.slice())
+    else {
+      for (let i = 0; i < left.length; i++) {
+        // choose
+        tmp.push(left[i])
+        const del = left.splice(i, 1)[0]
+        // explore
+        helper(left, tmp)
+        // un-choose
+        tmp.pop()
+        left.splice(i, 0, del)
+        // remove duplicate
+        while (left[i] === left[i + 1]) {i++}  // when the nums may contains duplicated
+      }
+    }
+  }
+}
+```
+#### Combinations  
+> Given two integers n and k, return all possible combinations of k numbers out of 1 ... n.
+```
+Input: n = 4, k = 2
+Output:
+[
+  [2,4],
+  [3,4],
+  [2,3],
+  [1,2],
+  [1,3],
+  [1,4],
+]
+```
+```
+const combine = function(n, k) {
+  const data = [], res = []
+  for (let i = 0; i < n; i++) { data[i] = i + 1 }
+  helper(0, [])
+  return res
+  
+  function helper(idx, tmp) {
+    if (tmp.length === k) res.push(tmp.slice())
+    else {
+      for (let i = idx; i < n; i++) {
+        // choose
+        tmp.push(data[i])
+        // explore
+        helper(i + 1, tmp)
+        // un-choose
+        tmp.pop()
+      }
+    }
+  }
+}
+```
+> Given a set of candidate numbers (candidates) (without duplicates) and a target number (target),
+> find all unique combinations in candidates where the candidate numbers sums to target.  
+> The same repeated number may be chosen from candidates unlimited number of times.
+```
+Input: candidates = [2,3,5], target = 8,
+A solution set is:
+[
+  [2,2,2,2],
+  [2,3,3],
+  [3,5]
+]
+```
+```
+const combinationSum = function(candidates, target) {
+  const res = []
+  candidates.sort((a, b) => a - b) // when has duplicates
+  helper(0, target, [])
+  return res
+  
+  function helper(idx, left, tmp) {
+    if (left < 0) return
+    else if (left === 0) res.push(tmp.slice())
+    else {
+      for (let i = idx; i < candidates.length; i++) {
+        // choose
+        tmp.push(candidates[i])
+        // explore
+        helper(i, left - candidates[i], tmp)
+        // un-choose
+        tmp.pop()
+        // remove duplicates
+        while (candidates[i] === candidates[i + 1]) {i++} // when has duplicates
+      }
+    }
+  }
+}
+```
+> Find all possible combinations of k numbers that add up to a number n, given that only numbers from 1 to 9 can be used and each combination should be a unique set of numbers.
+```
+Input: k = 3, n = 9
+Output: [[1,2,6], [1,3,5], [2,3,4]]
+```
+```
+const combinationSum3 = function(k, n) {
+  const res = [], data = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  helper(n, [], 0)
+  return res
+  
+  function helper(left, tmp, idx) {
+    if (left === 0 && tmp.length === k) res.push(tmp.slice())
+    else {
+      for (let i = idx; i < data.length; i++) {
+        // choose
+        tmp.push(data[i])
+        // explore
+        helper(left - data[i], tmp, i + 1)
+        // un-choose
+        tmp.pop()
+      }
+    }
+  }
+}
+```
+#### N-QUEENS
+> As the N-QUEENS description
+```
+const solveNQueens = function(n) {
+  const board = [...Array(n)].map(_ => '.'.repeat(n)), res = []
+  helper(board, 0)
+  return res
+  
+  function helper(board, row) {
+    if (row === n) res.push(board.slice())
+    else {
+      for (let col = 0; col < n; col++) {
+        // validation
+        if (!isValid(row, col, board)) continue
+        // choose
+        const tmp = board[row].split('')
+        tmp[col] = 'Q'
+        board[row] = tmp.join('')
+        // explore
+        helper(board, row + 1)
+        // un-choose
+        tmp[col] = '.'
+        board[row] = tmp.join('')
+      }
+    }
+  }
+  
+  function isValid(row, col, board) {
+    // validate col
+    for (let i = 0; i < row; i++) {
+      if (board[i][col] === 'Q') return false
+    }
+    // validate left-top
+    for (let i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) {
+      if (board[i][j] === 'Q') return false
+    }
+    // validate right-top
+    for (let i = row - 1, j = col + 1; i >= 0 && j < n; i--, j++) {
+      if (board[i][j] === 'Q') return false
+    }
+    return true
+  }
+}
+```
+
+
+
+
+
 
 # BASIC  
 ---
 
-> INTERVIEW BASIC  
 
 ## NETWORK  
 - **网络结构分层**  
