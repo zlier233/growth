@@ -268,7 +268,8 @@ const generateParenthesis = function(n) {
   }
 }
 ```
-
+### TIME-COMPLEXITY  
+According to the specific problems. O(N!)/ O(2^N) / balabala
 
 
 
