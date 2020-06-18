@@ -271,7 +271,320 @@ const generateParenthesis = function(n) {
 ### TIME-COMPLEXITY  
 According to the specific problems. O(N!)/ O(2^N) / balabala
 
+## BFS  
+### STRUCTURE CODE  
+```javascript
+function bfs(start, target) {
+  let q = [start]
+  let visited = new Set([start])
+  let cnt = 0
 
+  while (q.length) {
+    const len = q.length
+    for (let i = 0; i < len; i++) {
+      let cur = q.shift()
+      // judge
+      if (q === target) return cnt
+      // add neighbors to q
+      for (let node of q) {
+        if (!visited.has(node)) {
+          q.push(node)
+          visited.add(node)
+        }
+      }
+    }
+    cnt++
+  }
+}
+```
+### EXAMPLES  
+#### Binary Tree Level Order Traversal  
+> Given a binary tree, return the level order traversal of its nodes' values. (ie, from left to right, level by level).  
+``` javascript
+// bfs
+const levelOrder = function(root) {
+  if (!root) return []
+  let q = [root], res = []
+  while (q.length) {
+    const len = q.length
+    let tmp = []
+    for (let i = 0; i < len; i++) {
+      let cur = q.shift()
+      tmp.push(cur.val)
+      if (cur.left) q.push(cur.left)
+      if (cur.right) q.push(cur.right)
+    }
+    res.push(tmp)
+  }
+  return res
+}
+```
+#### Binary Tree Level Order Traversal II  
+> Given a binary tree, return the bottom-up level order traversal of its nodes' values. (ie, from left to right,   
+> level by level from leaf to root).
+```javascript
+// bfs
+const levelOrderBottom = function(root) {
+  if (!root) return []
+  let q = [root], cnt = 1
+  let res = []
+  const maxl = dpt(root)
+
+  while (q.length) {
+    const len = q.length
+    let tmp = []
+    for (let i = 0; i < len; i++) {
+      let cur = q.shift()
+      tmp.push(cur.val)
+      if (cur.left) q.push(cur.left)
+      if (cur.right) q.push(cur.right)
+    }
+    res[maxl - cnt] = tmp
+    cnt++
+  }
+  return res
+
+  function dpt(root) {
+    if (!root) return 0
+    return 1 + Math.max(dpt(root.left), dpt(root.right))
+  }
+}
+```
+#### Binary Tree Zigzag Level Order Traversal  
+> Given a binary tree, return the zigzag level order traversal of its nodes' values. (ie, from left to right,   
+> then right to left for the next level and alternate between).  
+```javascript
+// bfs
+const zigzagLevelOrder = function(root) {
+  if (!root) return []
+  let q = [root]
+  let res = []
+  let zigzag = true
+
+  while (q.length) {
+    const len = q.length
+    let tmp = [], nxt = []
+    for (let i = 0; i < len; i++) {
+      let cur = q.pop()   // ATTENTION
+      tmp.push(cur.val)
+      if (zigzag) {
+        if (cur.left) nxt.push(cur.left)
+        if (cur.right) nxt.push(cur.right)
+      } else {
+        if (cur.right) nxt.push(cur.right)
+        if (cur.left) nxt.push(cur.left)
+      }
+    }
+    res.push(tmp)
+    zigzag = !zigzag
+    q = nxt
+  }
+  return res
+}
+
+```
+#### Binary Tree Vertical Order Traversal  
+> Given a binary tree, return the vertical order traversal of its nodes' values.   
+> (ie, from top to bottom, column by column).
+```javascript
+// bfs
+const vericalOrder = function(root) {
+  if (!root) return []
+  let res = [], min = 0
+  let cols = new Map()  // store the cols value of nodes
+  let map = new Map()   // store the col-nodes array
+  let q = [root]
+  cols.set(root, 0)
+  while (q.length) {
+    let cur = q.shift()
+    let col = cols.get(cur)
+    if (!map.has(col)) map.set(col, [])
+    map.get(col).push(cur.val)  // push the cur node to its col's map
+    if (cur.left) {
+      q.push(cur.left)
+      cols.set(cur.left, col - 1)
+    }
+    if (cur.right) {
+      q.push(cur.right)
+      cols.set(cur.right, col + 1)
+    }
+    min = Math.min(min, col)
+  }
+  while (map.has(min++)) {
+    res.push(map.get(min))
+  }
+  return res
+}
+
+```
+#### N-ary Tree Level Order Traversal  
+> Given an n-ary tree, return the level order traversal of its nodes' values.  
+```javascript
+// bfs
+const levelOrder = function(root) {
+  if (!root) return []
+  let q = [root]
+  let res = []
+  while (q.length) {
+    const len = q.length
+    let tmp = []
+    for (let i = 0; i < len; i++) {
+      let cur = q.shift()
+      tmp.push(cur.val)
+      for (let n of cur.children) {
+        q.push(n)
+      }
+    }
+    res.push(tmp)
+  }
+  return res
+}
+```
+
+#### Number of Islands  
+> As description  
+```javascript
+// bfs
+const numIslands = function(grid) {
+  if (!grid || !grid.length || !grid[0].length) return 0
+  const m = grid.length, n = grid[0].length
+  let cnt = 0
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      if (grid[i][j] === '1') {
+        bfs(i, j)
+        cnt++
+      }
+    }
+  }
+  return cnt
+
+  function bfs(x, y) {
+    let q = [[x, y]]
+    grid[x][y] = '0'
+    const directions = [-1, 0, 1, 0, -1]
+    while (q.length) {
+      let [x, y] = q.shift()
+      for (let i = 0; i < directions.length - 1; i++) {
+        let newX = x + directions[i]
+        let newY = y + directions[i + 1]
+        if (!outOfBound(newX, newY) && grid[newX][newY] === '1') {
+          q.push([newX, newY])
+          grid[newX][newY] = '0'
+        }
+      }
+    }
+  }
+  function outOfBound(x, y) {
+    return x < 0 || y < 0 || x >= m || y >= n
+  }
+}
+```
+
+#### Max Area Of Island  
+> As description
+```javascript
+const maxAreaOfIsland = function(grid) {
+  let m = grid.length, n = grid[0].length
+  let max = 0
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      if (grid[i][j] === '1') {
+        grid[i][j] = '0'
+        let sum = bfs(i, j)
+        max = Math.max(sum, max)
+      }
+    }
+  }
+  return max
+
+  function bfs(x, y) {
+    let q = [[x, y]]
+    let sum = 0
+    const directions = [-1, 0, 1, 0, -1]
+    while (q.length) {
+      let [x, y] = q.shift()
+      sum++
+
+      for (let i = 0; i < directions.length - 1; i++) {
+        let newX = x + directions[i]
+        let newY = y + directions[i + 1]
+
+        if (!outOfBound(newX, newY) && grid[newX, newY] === '1') {
+          grid[newX][newY] = '0'
+          q.push([newX, newY])
+        }
+      }
+    }
+    return sum
+  }
+  function outOfBound(x, y) {
+    return x < 0 || y < 0 || x >= m || y >= n
+  }
+}
+```
+#### Walls And Gates  
+> As description  
+```javascript
+const wallsAndGates = function(rooms) {
+  if (!rooms || !rooms.length || !rooms[0].length) return
+  let q = []
+  for (let i = 0; i < rooms.length; i++) {
+    for (let j = 0; j < rooms[0].length; j++) {
+      if (rooms[i][j] == 0) q.push([i, j])
+    }
+  }
+  while (q.length) {
+    let [x, y] = q.shift()
+    let directions = [-1, 0, 1, 0, -1]
+    
+    for (let i = 0; i < directions.length - 1; i++) {
+      let newX = x + directions[i]
+      let newY = y + directions[i + 1]
+      if (!outOfBound(newX, newY) && rooms[newX][newY] == 2147483647) {
+        rooms[newX][newY] = rooms[x][y] + 1
+        q.push([newX, newY])
+      }
+    }
+  }
+  
+  function outOfBound(x, y) {
+    return x < 0 || y < 0 || x >= rooms.length || y >= rooms[0].length
+  }
+}
+```
+#### Word Ladder  
+> As description  
+```javascript 
+const ladderLength = function(beginWord, endWord, wordList) {
+  let q = [beginWord]
+  const dict = new Set(wordList)
+  const seen = new Set([beginWord])
+  let cnt = 1
+  while (q.length) {
+    const len = q.length
+    for (let i = 0; i < len; i++) {
+      let cur = q.shift()
+      if (cur === endWord) return cnt
+      
+      let arr = cur.split('')
+      for (let i = 0; i < arr.length; i++) {
+        for (let d = 0; d < 26; d++) {
+          arr[i] = String.fromCharCode(97 + d)
+          const nv = arr.join('')
+          if (!seen.has(nv) && dict.has(nv)) {
+            seen.add(nv)
+            q.push(nv)
+          }
+          arr[i] = cur[i]
+        }
+      }
+    }
+    cnt++
+  }
+  return 0
+}
+```
 
 # BASIC  
 ---
