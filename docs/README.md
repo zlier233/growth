@@ -271,7 +271,7 @@ const generateParenthesis = function(n) {
 ### TIME-COMPLEXITY  
 According to the specific problems. O(N!)/ O(2^N) / balabala
 
-## BFS  
+## BFS & DFS 
 ### STRUCTURE CODE  
 ```javascript
 function bfs(start, target) {
@@ -295,6 +295,10 @@ function bfs(start, target) {
     }
     cnt++
   }
+
+  function dfs() {
+    /* It's similar to the backtracking but not exactly the same. */
+  }
 }
 ```
 ### EXAMPLES  
@@ -317,6 +321,20 @@ const levelOrder = function(root) {
     res.push(tmp)
   }
   return res
+
+  // dfs
+  if (!root) return []
+  const res = []
+  dfs(root, 0)
+  return res
+
+  function dfs(node, l) {
+    if (!node) return
+    if (!res[l]) res[l] = []
+    res[l].push(node.val)
+    if (node.left) dfs(node.left, l + 1)
+    if (node.right) dfs(node.right, l + 1)
+  }
 }
 ```
 #### Binary Tree Level Order Traversal II  
@@ -478,6 +496,30 @@ const numIslands = function(grid) {
   function outOfBound(x, y) {
     return x < 0 || y < 0 || x >= m || y >= n
   }
+
+  // dfs
+  if (!grid || !grid.length || !grid[0].length) return 0
+  const m = grid.length, n = grid[0].length
+  let cnt = 0
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      dfs(i, j)
+      cnt++
+    }
+  }
+  return cnt
+
+
+  function dfs(x, y) {
+    if (x < 0 || y < 0 || x >= m || y >= n || grid[x][y] !== '1') return 
+    grid[x][y] = '0'
+    let directions = [-1, 0, 1, 0, -1]
+    for (let i = 0; i < directions.length - 1; i++) {
+      let newX = x + directions[i]
+      let newY = y + directions[i + 1]
+      dfs(newX, newY)
+    }
+  }
 }
 ```
 
@@ -485,6 +527,7 @@ const numIslands = function(grid) {
 > As description
 ```javascript
 const maxAreaOfIsland = function(grid) {
+  // bfs
   let m = grid.length, n = grid[0].length
   let max = 0
   for (let i = 0; i < m; i++) {
@@ -520,6 +563,31 @@ const maxAreaOfIsland = function(grid) {
   }
   function outOfBound(x, y) {
     return x < 0 || y < 0 || x >= m || y >= n
+  }
+
+  // dfs
+  if (!grid || !grid.length || !grid[0].length) return 0
+  const m = grid.length, n = grid[0].length
+  let max = 0
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      if (grid[i][j] == 1) {
+        max = Math.max(dfs(i, j), max)
+      }
+    }
+  }
+  return max
+
+  function dfs(x, y) {
+    grid[x][y] = 0
+    let sum = 1
+    const directions = [-1, 0, 1, 0, -1]
+    for (let i = 0; i < directions.length - 1; i++) {
+      let newX = x + directions[i]
+      let newY = y + directions[i + 1]
+      if (!outOfBound(newX, newY) && grid[newX][newY] == 1) sum += dfs(newX, newY)
+    }
+    return sum
   }
 }
 ```
@@ -585,6 +653,57 @@ const ladderLength = function(beginWord, endWord, wordList) {
   return 0
 }
 ```
+
+
+#### Critical Connections in a Network  
+> As description 1192.  
+```javascript
+const criticalConnections = function(n, connections) {
+  // build graph
+  const g = Array(n).fill([])
+  for (let [u, v] of connections) {
+    g[u].push(v)
+    g[v].push(u)
+  }
+  let idx = 0
+  const res = 0
+  const low = 0
+  const dfn = Array(n).fill(Infinity)
+  dfs(0, -1)
+  return res
+
+  function dfs(u, pre) {
+    low[n] = dfn[u] = idx++
+    for (const v of g[u]) { // scan
+      if (v === pre) continue  // parent vertex, ignore
+      if (dfn[v] === Infinity) {  // v is not visited yet
+        dfs(v, u)
+        low[u] = Math.min(low[u], low[v])
+        if (low[v] > dfn[u]) res.push([u, v]) // u - v is critical there's no path for v to reach back u or previous u
+        else low[u] = Math.min(low[u], dfn[v])
+      }
+    }
+  }
+}
+```
+#### Convert Sorted Array to Binary Search Tree
+> As description 108
+````javascript
+const sortedArray = function(price, special, needs) {
+  if (nums.length == 0) return null
+    return helper(nums, 0, nums.length - 1)
+    
+    function helper(nums, lo, hi) {
+      if (lo > hi) return null
+      let mid = (lo + hi) >> 1
+      let node = new TreeNode(nums[mid])
+      node.left = helper(nums, lo, mid - 1)
+      node.right = helper(nums, mid + 1, hi)
+      return node
+    }
+}
+```
+
 
 # BASIC  
 ---
@@ -661,7 +780,17 @@ const ladderLength = function(beginWord, endWord, wordList) {
  窗口的前沿一般是向前的，也有可能不动（表示没有收到新的请求或对方的接收窗口变小），也有可能收缩，但是TCP强烈不建议这么做，  
  因为发送端在收到通知前可能已经发送了很多数据，此时如果收缩窗口可能会产生错误
 - **tcp 三次握手 四次挥手**  
-
+ TCP是全双工通信，任何一方都可以发起建立连接的请求，假设A是客户端，B是服务器。  
+ 初始时A和B均处于CLOSED状态，B会创建传输进程控制块TCB，然后处于LISTEND状态，监听端口是否收到了TCP请求以便及时响应。  
+ 当A要发生数据时，就向B发送一个连接请求报文，TCP规定连接请求报文的SYN=1，ACK=0，SYN表示synchronization，ACK表示acknowledgement，SYN不可以携带数据，  
+ 但要消耗一个序号，此时A发送的序号seq假设为x。发送完之后，A就进入了SYN-SENT同步已发送状态。  
+ 当B收到了A的连接请求报文后，如果B同意建立连接，会发送给A一个确认连接请求报文，其中SYN=1，ACK=1，ack=x+1，seq=y，ack的值为A发送的序号加1，ACK可以携带数据，  
+ 如果不携带的话，则不消耗序号。发送完之后，B进入SYN-RCVD同步已接收状态。  
+ 当A收到了B的确认连接请求报文后，还要对该确认再进行一次确认，报文的ACK=1，ack=y+1，seq=x+1，发送之后A处于established状态，当B接收到该报文后也进入established状态。  
+ *之所以要进行三次握手*，是因为第二次握手时A知道了自己的发送和接收是没有问题的，而第三次握手时B才能知道自己的发送和接收也都是没有问题的。  
+ 同时三次握手防止了已失效的连接请求问题，假设这样一种正常情况，A发送的第一个连接请求报文丢失了，之后超时重传，建立了连接，通信之后释放了连接。  
+ 但假设A第一个发送的连接请求报文并没有丢失，而是在网络中某结点停滞了，之后又到达了B。如果是两次握手，此时B会以为是A请求建立连接，  
+ 同意之后并不会收到任何数据，因为A已经关闭了，此时B的资源就会被白白浪费。
 
 - **网络拥塞控制四种算法，慢开始，拥塞避免，快重传，快恢复**
 
