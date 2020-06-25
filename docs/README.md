@@ -533,6 +533,307 @@ const partition = function(s) {
 
 ### TIME-COMPLEXITY  
 According to the specific problems. O(N!)/ O(2^N) / balabala
+## Binary Search  
+### STRUCTURE CODE  
+``` javascript
+// NORMAL  
+const bs = function(nums, target) {
+  if (!nums.length) return -1
+  let lo = 0, hi = nums.length - 1
+  while (lo <= hi) {
+    let mid = lo + ((hi - lo) >> 1)
+    if (nums[mid] === target) return mid
+    else if (nums[mid] > target) hi = mid - 1
+    else lo = mid + 1
+  }
+  return -1
+}
+// LEFT BOUND
+const bs = function(nums, target) {
+  if (!nums.length) return -1
+  let lo = 0, hi = nums.length
+  while (lo < hi) {
+    let mid = lo + ((hi - lo) >> 1)
+    if (nums[mid] === target) hi = mid
+    else if (nums[mid] > target) hi = mid
+    else lo = mid + 1
+  }
+  return lo
+}
+// RIGHT BOUND
+const bs = function(nums, target) {
+  if (!nums.length) return -1
+  let lo = 0, hi = nums.length
+  while (lo < hi) {
+    let mid = lo + ((hi - lo) >> 1)
+    if (nums[mid] === target) lo = mid + 1
+    else if (nums[mid] < target) lo = mid + 1
+    else hi = mid
+  }
+  return lo - 1
+}
+```
+### EXAMPLES  
+#### Median of Two Sorted Array  
+> 4  
+``` javascript
+const findMedianSortedArrays = function(nums1, nums2) {
+  const m = nums1.length, n = nums2.length, resLeft = 0, resRight = 0
+  // swap
+  if (m > n) {
+    let tmp = n, tmpNums = num2
+    n = m
+    nums2 = nums1
+    m = tmp
+    nums1 = tmpNums
+  }
+  let lo = 0, hi = m, halfLen = (m + n + 1) >> 1
+  while (lo <= hi) {
+    let i = lo + ((hi - lo) >> 1), j = halfLen - i
+    if (i < m && nums2[j - 1] > nums1[i]) lo = i + 1
+    else if (i > 0 && nums1[i - 1] > nums2[j]) hi = i - 1
+    else {
+      if (i === 0) resLeft = nums2[j - 1]
+      else if (j === 0) resLeft = nums1[i - 1]
+      else resLeft = Math.max(nums2[j - 1], nums1[i - 1])
+
+      if ((m + n) % 2 === 1) return resLeft
+
+      if (i === m) resRight = nums2[j]
+      else if (j === n) resRight = nums1[i]
+      else resRight = Math.min(nums1[i], nums2[j])
+
+      return (resLeft + resRight) / 2.0
+    }
+  }
+}
+```
+#### Search In Sorted Array I && II
+> 33, 81  
+``` javascript
+const search = function(nums, target) {
+  let lo = 0, hi = nums.length - 1
+  while (lo <= hi) {
+    let mid = lo + ((hi - lo) >> 1)
+    if (target === nums[mid]) return mid   // true for 81
+    // remove duplicates in right part for 81
+    while (nums[mid] === nums[hi] && mid !== hi) { hi-- }
+    if (nums[mid] > nums[hi]) {
+      if (target < nums[mid] && target >= nums[lo]) hi = mid - 1
+      else lo = mid + 1
+    } else {
+      if (target > nums[mid] && target <= nums[hi]) lo = mid + 1
+      else hi = mid - 1
+    }
+  }
+  return -1  // false for 81
+}
+```
+#### Search a 2D Matrix  
+> 74
+``` javascript
+const searchMatrix = function(matrix, target) {
+  if (!matrix || !matrix.length || !matrix[0].length) return false
+  let lo = 0, hi = matrix.length * matrix[0].length - 1
+  while (lo <= hi) {
+    let mid = lo + ((hi - lo) >> 1)
+    let x = mid % matrix[0].length
+    let y = mid / matrix[0].length | 0
+    if (target === matrix[x][y]) return true
+    else if (target > matrix[x][y]) lo = mid + 1
+    else hi = mid - 1
+  }
+  return false
+}
+```
+#### Search a 2D Matrix II  
+> 240. Top Right is max, right to left, up to down, decreasing.  
+```javascript
+const searchMatrix = function(matrix, target) {
+  if (!matrix || !matrix.length || !matrix[0].length) return false
+  let x = 0, y = matrix[0].length - 1
+  while (x < matrix.length && y >= 0) {
+    if (matrix[x][y] === target) return true
+    else if (target > matrix[x][y]) x++
+    else y--
+  }
+  return false
+}
+```
+#### Search Insert Position  
+> 35
+``` javascript
+// left bound
+const searchInsert = function(nums, target) {
+  let lo = 0, hi = nums.length
+  while (lo < hi) {
+    let mid = lo + ((hi - lo) >> 1)
+    if (target > nums[mid]) lo = mid + 1
+    else hi = mid
+  }
+  return lo
+}
+```
+#### Kth Smallest Element in a Sorted Matrix  
+> 378  
+``` javascript
+// The correctness of this algorithm is to ensure that the target value is   
+// within the range of [low, high] for each loop step.
+const kthSmallest = function(matrix, k) {
+  let lo = matrix[0][0], N = matrix.length, hi = matrix[N - 1][N - 1]
+  while (lo < hi) {
+    let mid = lo + ((hi - lo) >> 1)
+    let cnt = 0
+    for (let i = 0; i < N; i++) {
+      let j = N - 1
+      // count num smaller than mid
+      while (matrix[i][j] > mid && j >= 0) { j-- }  
+      cnt += j + 1
+    }
+    if (cnt < k) lo = mid + 1
+    else hi = mid
+  }
+  return lo
+}
+```
+#### Find Peak Element  
+> 162
+``` javascript
+const findPeakElement = function(nums) {
+  let lo = 0, hi = nums.length - 1
+  while (lo < hi) {
+    let mid = lo + ((hi - lo) >> 1)
+    // make each boundary hold true
+    if (nums[mid] < nums[mid + 1]) lo = mid + 1
+    else hi = mid
+  }
+  return lo
+}
+```
+#### Find the Duplicate Number  
+> 287
+``` javascript
+const findDuplicate = function(nums) {
+  let lo = 1, hi = nums.length
+  while (lo < hi) {
+    let mid = lo + ((hi - lo) >> 1)
+    let cnt = 0
+    for (let j = 0; j < nums.length; j++) {
+      if (nums[j] <= mid) cnt++
+    }
+    if (cnt > mid) hi = mid // duplicates in [lo, mid]
+    else lo = mid + 1 // duplicates in [mid + 1, hi]
+  }
+}
+```
+#### Pow(x, n)  
+> 50
+```javascript
+const myPow = function(x, n) {
+  if (n === 0) return 1
+  if (n < 0) return 1 / myPow(x, -n)
+  if (n & 1) return x * myPow(x, n - 1) 
+  return myPow(x * x, n / 2)
+}
+```
+#### Sqrt(x)  
+> 69
+```javascript
+const mySqrt = function(x) {
+  let hi = x
+  while (hi * hi > x) {
+    hi = (hi + x / hi) / 2 | 0
+  }
+  return hi
+}
+const mySqrt = function(x) {
+  let lo = 0, hi = x
+  while (lo < hi) {
+    let mid = lo + ((hi - lo) >> 1)
+    if (mid * mid === x) return mid
+    else if (x > mid * mid) lo = mid + 1
+    else hi = mid
+  }
+  return x < lo * lo ? lo - 1 : lo
+}
+```
+#### Find Minimum in Rotated Sorted Array  
+> 153
+``` javascript
+const findMin = function(nums) {
+  let lo = 0, hi = nums.length - 1
+  while (lo < hi) {
+    let mid = lo + ((hi - lo) >> 1)
+    if (nums[mid] > nums[hi]) lo = mid + 1
+    else hi = mid
+  }
+  return nums[lo]
+}
+```
+#### Find Minimum in Rotated Sorted Array II  
+> 154
+``` javascript
+const findMin = function(nums) {
+  let lo = 0, hi = nums.length - 1
+  while (lo < hi) {
+    let mid = lo + ((hi - lo) >> 1)
+    if (nums[mid] > nums[hi]) lo = mid + 1
+    else if (nums[mid] < nums[hi]) hi = mid
+    else {
+      if (nums[hi - 1] > nums[hi]) {
+        lo = hi
+        break
+      }
+      // nums[mid] == nums[hi] shrink the upper bound like 81
+      hi--
+    }
+  }
+  return nums[lo]
+}
+```
+#### Longest Increasing Subsequence  
+> 300 
+``` javascript
+const lengthOfLIS = function(nums) {
+  let tails = Array(nums.length).fill(0)
+  let max = 0
+  for (let n of nums) {
+    let i = 0, j = max
+    // search for the pos of num in tails
+    while (i < j) {
+      let mid = i + ((j - i) >> 1)
+      if (num > tails[mid]) i = mid + 1
+      else j = mid
+    }
+    // update tails, will cover previous bigger one
+    tails[i] = num
+    // if insert to the last, then max++
+    if (max === i) max++
+  }
+  return max
+}
+```
+#### Count Of Smaller Numbers After Self  
+> 315  
+```javascript
+// a little bit similar to 300
+const countSmaller = function(nums) {
+  const len = nums.length
+  const res = Array(len).fill(0)
+  const arr = []
+  for (let i = len - 1; i >= 0; i--) {
+    let lo = 0, hi = arr.length
+    while (lo < hi) {
+      let mid = lo + ((hi - lo) >> 1)
+      if (arr[mid] < nums[i]) lo = mid + 1
+      else hi = mid
+    }
+    res[i] = lo
+    arr.splice(lo, 0, nums[i])
+  }
+  return res
+}
+```
 
 ## BFS & DFS 
 ### STRUCTURE CODE  
