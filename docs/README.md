@@ -102,6 +102,7 @@ const combine = function(n, k) {
   }
 }
 ```
+#### Combination Sum
 > Given a set of candidate numbers (candidates) (without duplicates) and a target number (target),
 > find all unique combinations in candidates where the candidate numbers sums to target.  
 > The same repeated number may be chosen from candidates unlimited number of times.
@@ -139,6 +140,36 @@ const combinationSum = function(candidates, target) {
   }
 }
 ```
+#### Combination Sum II  
+> Given a collection of candidate numbers (candidates) and a target number (target),   
+> find all unique combinations in candidates where the candidate numbers sums to target.  
+> Each number in candidates may only be used once in the combination.  
+``` javascript
+const combinationSum2 = function(candidates, target) {
+  const res = []
+  candidates.sort((a, b) => a - b)
+  helper(0, target, [])
+  return res
+  
+  function helper(idx, left, tmp) {
+    if (left < 0) return
+    else if (left === 0) res.push(tmp.slice())
+    else {
+      for (let i = idx; i < candidates.length; i++) {
+        // choose
+        tmp.push(candidates[i])
+        // explore
+        helper(i + 1, left - candidates[i], tmp)
+        // un-choose
+        tmp.pop()
+        // remove duplicates
+        while (candidates[i] === candidates[i + 1]) {i++}
+      }
+    }
+  }
+}
+```
+#### Combination Sum III
 > Find all possible combinations of k numbers that add up to a number n, given that only numbers from 1 to 9 can be used and each combination should be a unique set of numbers.
 ```javascript
 Input: k = 3, n = 9
@@ -151,6 +182,7 @@ const combinationSum3 = function(k, n) {
   return res
   
   function helper(left, tmp, idx) {
+    if (left < 0) return 
     if (left === 0 && tmp.length === k) res.push(tmp.slice())
     else {
       for (let i = idx; i < data.length; i++) {
@@ -161,6 +193,30 @@ const combinationSum3 = function(k, n) {
         // un-choose
         tmp.pop()
       }
+    }
+  }
+}
+```
+#### Subsets I && II 
+> Given a set of distinct integers, nums, return all possible subsets (the power set).  
+```javascript 
+const subsets = function(nums) {
+  const res = []
+  nums.sort((a, b) => a - b) // if has duplicates
+  helper(0, [])
+  return res
+
+  function helper(idx, tmp) {
+    res.push(tmp.slice)
+    for (let i = idx; i < nums.length; i++) {
+      // choose
+      tmp.push(nums[i])
+      // explore
+      helper(i + 1, tmp)
+      // un-choose
+      tmp.pop()
+      // remove duplicates
+      while (nums[i] === nums[i + 1]) {i++}
     }
   }
 }
@@ -227,6 +283,7 @@ const totalNQueens = function(n) {
         cols[col] = diag[row - col + n] = antiDiag[row + col] = true
         // explore
         helper(row + 1)
+        // un-choose
         cols[col] = diag[row - col + n] = antiDiag[row + col] = false
         
       }
@@ -236,6 +293,123 @@ const totalNQueens = function(n) {
   function isValid(row, col) {
     if (cols[col] || diag[row - col + n] || antiDiag[row + col]) return false
     return true
+  }
+}
+```
+#### Sudoku Solver  
+> As description 37.
+``` javascript
+const solveSudoku = function(board) {
+  helper(0, 0)
+
+  function helper(i, j) {
+    if (i === 9) return true
+    if (j === 9) return helper(i + 1, 0)
+    if (board[i][j] != '.') return helper(i, j + 1)
+
+    for (let c = 1; c <= 9; c++) {
+      if (check(i, j, c)) {
+        // choose
+        board[i][j] = String(c)
+        // explore
+        if (helper(i, j + 1)) return true
+        // un-choose
+        board[i][j] = '.'
+      }
+      return false
+    }
+    
+    function check(i, j, val) {
+      for (let k = 0; k < 9; k++) {
+        // check col 
+        if (board[k][j] == val) return false
+        // check row
+        if (board[i][k] == val) return false
+        // check cube
+        if (board[i - i % 3 + k / 3 | 0][j - j % 3 + k % 3] == val) return false
+      }
+
+      return true
+    }
+  }
+}
+```
+#### Word Search  
+> As description 79.
+```javascript  
+const exist = function(board, word) {
+  for (let i = 0; i < board.length; i++) {
+    for (let j = 0; j < board[0].length; j++) {
+      if (helper(i, j, board, 0)) return true
+    }
+  }
+  return false
+
+  function helper(idx, idy, board, path) {
+    if (idx < 0 || idy < 0 || idx >= board.length || idy >= board[0].length || 
+      board[idx][idy] !== word[path] || path > word.length) return false
+
+    // choose
+    board[idx][idy] = '*'
+    path++
+    // judge
+    if (path === word.length) return true
+    // explore
+    let isFound = helper(idx + 1, idy, board, path) ||
+                  helper(idx - 1, idy, board, path) ||
+                  helper(idx, idy + 1, board, path) ||
+                  helper(idx, idy - 1, board, path)
+    // un-choose
+    board[idx][idy] = word[--path]
+  }
+  return isFound
+}
+```
+#### Word Search II  
+> As description 212
+```javascript
+// use trie
+const findWords = function(board, words) {
+  let res = []
+  const root = buildTrie()
+  for (let i = 0; i < board.length; i++) {
+    for (let j = 0; j < board[0].length; j++) {
+      search(root, i, j)
+    }
+  }
+  return res
+  
+  function buildTrie() {
+    const root = {}
+    for (let w of words) {
+      let node = root
+      for (let c of w) {
+        if (node[c] == null) node[c] = {}
+        node = node[c]
+      }
+      node.word = w
+    }
+    return root
+  }
+  
+  function search(node, i, j) {
+    if (node.word != null) {
+      res.push(node.word)
+      node.word = null
+    }
+    if (i < 0 || j < 0 || i >= board.length || j >= board[0].length) return
+    if (node[board[i][j]] == null) return 
+    
+    // choose
+    const c = board[i][j]
+    board[i][j] = '#'
+    // explore
+    search(node[c], i + 1, j)
+    search(node[c], i - 1, j)
+    search(node[c], i, j + 1)
+    search(node[c], i, j - 1)
+    // un-choose
+    board[i][j] = c
   }
 }
 ```
@@ -268,6 +442,95 @@ const generateParenthesis = function(n) {
   }
 }
 ```
+#### Regular Expression Matching  
+> Like regexp  
+```javascript
+// actually using dp =.=
+const isMatch = function(s, p) {
+  const lenS = s.length, lenP = p.length
+  const map = new Map()
+  return check(0, 0)
+
+  function check(ids, idp) {
+    if (map[ids + ':' + idp] != undefined) return map[ids + ':' + idp]
+    if (ids > lenS) return false
+    if (ids === lenS && idp === lenP) return true
+
+    // p: ?.? / ?a?  s: ?a?
+    if (p[idp] === '.' || p[idp] === s[ids]) {
+      map[ids + ':' + idp] = p[idp + 1] === '*' ?
+        check(ids + 1, idp) || check(ids, idp + 2) :
+        check(ids + 1, idp + 1)
+    } else {
+      map[ids + ':' + idp] = p[idp + 1] === '*' ?
+        check(ids, idp + 2) : false 
+    }
+    return map[ids + ':' + idp]
+  }
+}
+```
+#### Restore IP Address  
+> As description 93  
+``` javascript
+const restoreIpAddress = function(s) {
+  const res = []
+  helper([], 0)
+  return res
+
+  function helper(tmp, idx) {
+    if (tmp.length === 4 && idx < s.length) return
+    else if (tmp.length === 4 && idx === s.length) res.push(tmp.slice().join('.'))
+    else {
+      for (let i = idx; i < s.length; i++) {
+        if (i != idx && s[i] === '0') return
+        const num = parseInt(s.slice(idx, i + 1))
+        if (num > 255) return
+        // choose
+        tmp.push(num)
+        // explore
+        helper(tmp, i + 1)
+        // un-choose
+        tmp.pop()
+      }
+    }
+  }
+}
+```
+#### Palindrome Partitioning  
+> 131  
+``` javascript
+const partition = function(s) {
+  const res = []
+  helper(0, []) 
+  return res
+
+  function helper(idx, tmp) {
+    if (tmp.length > 0 && idx >= s.length) res.push(tmp.slice())
+    else {
+      for (let i = idx; i < s.length; i++) {
+        if (isPalindrome(idx, i)) {
+          // choose
+          tmp.push(s.slice(idx, i + 1))
+          // explore
+          helper(i + 1, tmp)
+          // un-choose
+          tmp.pop()
+        }
+      }
+    }
+  }
+
+  function isPalindrome(start, end) {
+    if (start === end) return true
+    while (start < end) {
+      if (s[start] !== s[end]) return false
+      else {start++;end--}
+    }
+    return true
+  }
+}
+```
+
 ### TIME-COMPLEXITY  
 According to the specific problems. O(N!)/ O(2^N) / balabala
 
