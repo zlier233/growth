@@ -834,6 +834,47 @@ const countSmaller = function(nums) {
   return res
 }
 ```
+#### Koko Eating Bananas  
+> 875  
+```javascript
+const minEatingSpeed = function(piles, H) {
+  let lo = 1, hi = Math.max(...piles) + 1
+  while (lo < hi) {
+    let mid = lo + ((hi - lo) >> 1)
+    let cnt = 0
+    for (let i = 0; i < piles.length; i++) {
+      cnt += (piles[i] + mid - 1) / mid | 0
+    }
+    if (cnt <= H) hi = mid
+    else lo = mid + 1
+  }
+  return lo
+}
+```
+#### Capacity To Ship Packages Within D Days  
+> 1011 
+```javascript
+const shipWithinDays = function(weights, D) {
+  let sum = 0
+  for (let w of weights) {sum += w}
+  let lo = Math.max(...weights), hi = sum + 1
+  while (lo < hi) {
+    let mid = lo + ((hi - lo) >> 1)
+    let cnt = 1
+    let tmp = 0
+    for (let w of weights) {
+      if (tmp + w > mid) {
+        cnt++
+        tmp = 0
+      }
+      tmp += w
+    }
+    if (cnt > D) lo = mid + 1
+    else hi = mid
+  }
+  return lo
+}
+```
 
 ## BFS & DFS 
 ### STRUCTURE CODE  
@@ -1252,7 +1293,7 @@ const criticalConnections = function(n, connections) {
 ```
 #### Convert Sorted Array to Binary Search Tree
 > As description 108
-````javascript
+```javascript
 const sortedArray = function(price, special, needs) {
   if (nums.length == 0) return null
     return helper(nums, 0, nums.length - 1)
@@ -1267,6 +1308,215 @@ const sortedArray = function(price, special, needs) {
     }
 }
 ```
+## SORT  
+### STRUCTURE CODE  
+``` javascript
+const quickSort = function(nums) {
+  if (nums.length < 2) return nums
+  let l = 0, r = nums.length - 1
+  if (l < r) {
+    let i = l, j = r, x = nums[l] // x pivot
+    while (i < j) {
+      // from right to left find the first that less than pivot
+      while (i < j && nums[j] >= x) { j-- }
+      if (i < j) nums[i++] = nums[j]
+      // from left to right find the first that more or equal than pivot
+      while (i < j && nums[i] < x) { i++ }
+      if (i < j) nums[j--] = nums[i]
+    }
+    nums[i] = x
+    quickSort(nums, l, i - 1)
+    quickSort(nums, i + 1, r)
+  }
+  return nums
+}
+```
+``` javascript
+// more clear
+const quickSort = function(nums) {
+  if (nums.length < 2) return nums
+  const lesser = []
+  const greater = []
+  const pivot = nums[0]
+  for (let i = 1; i < nums.length; i++) {
+    if (nums[i] < pivot) lesser.push(nums[i])
+    else greater.push(nums[i])
+  }
+  return quickSort(lesser).concat(pivot, quickSort(greater))
+}
+```
+```javascript
+// from bottom to top
+const mergeSort = function(nums) {
+  if (nums.length < 2) return nums
+
+  let step = 1
+  let l = -1, r = -1
+  while (step < nums.length) {
+    l = 0
+    r = step
+    while (r + step <= nums.length) {
+      merge(nums, l, l + step, r, r + step)
+      l = r + step
+      r = l + step
+    } 
+    if (r < nums.length) merge(nums, l, l + step, r, nums.length)
+    step *= 2
+  }
+  return nums
+
+  function merge(nums, startL, stopL, startR, stopR) {
+    let rightNums = new Array(stopR - startR + 1)
+    let leftNums = new Array(stopL - startL + 1)
+    let k = startR
+    for (let i = 0; i < rightNums.length - 1; i++) {
+      rightNums[i] = nums[k]
+      k++
+    }
+    k = startL
+    for (let i = 0; i < leftNums.length - 1; i++) {
+      leftNums[i] = nums[k]
+      k++
+    }
+    // pivot value
+    rightNums[rightNums.length - 1] = Infinity
+    leftNums[leftNums.length - 1] = Infinity
+    let m = 0
+    let n = 0
+    for (let k = startL; k < stopR; k++) {
+      if (leftNums[m] <= rightNums[n]) {
+        nums[k] = leftNums[m]
+        m++
+      } else {
+        nums[k] = rightNums[n]
+        n++
+      }
+    }
+  }
+}
+```
+``` javascript
+// from top to bottom  
+const mergeSort = function(nums) {
+  if (nums.length < 2) return nums
+  let mid = nums.length / 2 | 0
+  let left = nums.slice(0, mid)
+  let right = nums.slice(mid)
+  return merge(mergeSort(left), mergeSort(right))
+
+  function merge(left, right) {
+    const res = []
+    while (left.length && right.length) {
+      if (left[0] <= right[0]) res.push(left.shift())
+      else res.push(right.shift())
+    }
+    while (left.length) res.push(left.shift())
+    while (right.length) res.push(right.shift())
+    return res
+  }
+}
+```
+```javascript
+const heapSort = function(nums) {
+  const len = nums.length 
+
+  buildMaxHeap(nums)
+  for (let i = nums.length - 1; i > 0; i--) {
+    swap(nums, 0, i)
+    len--
+    heapify(nums, 0)
+  }
+  return nums
+
+  function buildMaxHeap(nums) {
+    for (let i = len / 2 | 0; i >= 0; i--) { heapify(nums, i) }
+  }
+
+  function heapify(nums, i) {
+    let left = 2 * i + 1
+    let right = 2 * i + 2
+    let largest = i
+    if (left < len && nums[left] > nums[largest]) largest = left
+    if (right < len && nums[right] > nums[largest]) largest = right
+    if (largest !== i) {
+      swap(nums, i, largest)
+      heapify(nums, largest)
+    }
+  }
+
+  function swap(nums, i, j) {
+    let tmp = nums[i]
+    nums[i] = nums[j]
+    nums[j] = tmp
+  }
+
+}
+```
+``` javascript
+const bubbleSort = function(nums) {
+  const N = nums.length
+  for (let i = N - 1; i > 0; i--) {
+    for (let j = 0; j < i; j++) {
+      // find the max to tail pos
+      if (nums[j] > nums[j + 1]) swap(j, j + 1)
+    }
+  }
+  return nums
+}
+```
+``` javascript
+const selectSort = function(nums) {
+  let min = -1
+  let N = nums.length
+  for (let i = 0; i < N - 1; i++) {
+    min = i
+    for (let j = i + 1; j < N; j++) {
+      // find the min to head pos
+      if (nums[j] < nums[min]) min = j
+    }
+    swap(i, min)
+  }
+  return nums
+}
+```
+``` javascript
+const insertSort = function(nums) {
+  const N = nums.length
+  let pre = -1
+  let cur = 0
+  for (let i = 1; i < N; i++) {
+    cur = nums[i]
+    pre = i - 1
+    while (pre >= 0 && nums[pre] > cur) {
+      nums[pre + 1] = nums[pre]
+      pre--
+    }
+    nums[pre + 1] = cur
+  }
+  return nums
+}
+```
+``` javascript
+const shellSort = function(nums) {
+  const N = nums.length
+  let gap = 1
+  while (gap < N / 3) {
+    gap = gap * 3 + 1
+  }
+  for (gap; gap > 0; gap = gap / 3 | 0) {
+    for (let i = gap; i < N; i++) {
+      let tmp = nums[i]
+      for (j = i - gap; j >= 0 && nums[j] > tmp; j -= gap) {
+        nums[j + gap] = nums[j]
+      }
+      nums[j + gap] = tmp
+    }
+  }
+  return nums
+}
+```
+
+
 
 
 # BASIC  
