@@ -1723,6 +1723,7 @@ const shellSort = function(nums) {
     [Detail](https://github.com/CyC2018/CS-Notes/blob/master/notes/HTTP.md#%E4%B8%80-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5)
 
 ## Socket  
+[Detail](https://github.com/CyC2018/CS-Notes/blob/master/notes/Socket.md)  
  - **I/O模型**  
  一个输入操作通常包括两个阶段：*等待数据准备好*和*从内核向进程复制数据*   
  对于一个套接字上的输入操作，第一步通常涉及等待数据从网络中到达。当所等待数据到达时，它被复制到内核中的某个缓冲区。第二步就是把数据从内核缓冲区复制到应用进程缓冲区。  
@@ -1768,3 +1769,42 @@ const shellSort = function(nums) {
   - timeout 为超时参数，调用 select 会一直阻塞直到有描述符的事件到达或者等待的时间超过 timeout  
 
   - 成功调用返回结果大于 0，出错返回结果为 -1，超时返回结果为 0  
+
+ ```cpp 
+ int poll(struct pollfd *fds, unsigned int nfds, int timeout);
+ ```
+ poll 的功能与 select 类似，也是等待一组描述符中的一个成为就绪状态  
+ poll 中的描述符是 pollfd 类型的数组，pollfd 的定义如下  
+ ```cpp
+struct pollfd {
+               int   fd;         /* file descriptor */
+               short events;     /* requested events */
+               short revents;    /* returned events */
+           };
+ ```
+
+  **比较**  
+  1. 功能
+    select 和 poll 的功能基本相同，不过在一些实现细节上有所不同。
+
+    - select 会修改描述符，而 poll 不会
+    - select 的描述符类型使用数组实现，FD_SETSIZE 大小默认为 1024，因此默认只能监听少于 1024 个描述符。如果要监听更多描述符的话，需要修改 FD_SETSIZE 之后重新编译；而 poll 没有描述符数量的限制  
+    - poll 提供了更多的事件类型，并且对描述符的重复利用上比 select 高
+    - 如果一个线程对某个描述符调用了 select 或者 poll，另一个线程关闭了该描述符，会导致调用结果不确定   
+  2. 速度
+    select 和 poll 速度都比较慢，每次调用都需要将全部描述符从应用进程缓冲区复制到内核缓冲区。   
+
+  3. 可移植性
+    几乎所有的系统都支持 select，但是只有比较新的系统支持 poll  
+
+ ```cpp
+int epoll_create(int size);
+int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event)；
+int epoll_wait(int epfd, struct epoll_event * events, int maxevents, int timeout);
+ ```
+ epoll_ctl() 用于向内核注册新的描述符或者是改变某个文件描述符的状态。已注册的描述符在内核中会被维护在一棵红黑树上，通过回调函数内核会将 I/O 准备好的描述符加入到一个链表中管理，进程调用 epoll_wait() 便可以得到事件完成的描述符   
+
+ 从上面的描述可以看出，epoll 只需要将描述符从进程缓冲区向内核缓冲区拷贝一次，并且进程不需要通过轮询来获得事件完成的描述符  
+ epoll 仅适用于 Linux OS  
+ epoll 比 select 和 poll 更加灵活而且没有描述符数量限制  
+ epoll 对多线程编程更有友好，一个线程调用了 epoll_wait() 另一个线程关闭了同一个描述符也不会产生像 select 和 poll 的不确定情况  
