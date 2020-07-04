@@ -60,6 +60,27 @@ const search = function(nums, target) {
   return -1
 }
 ```
+## 42. Trapping Rain Water  //TODO
+[link](https://leetcode.com/problems/trapping-rain-water/)
+```javascript
+const trap = function(height) {
+  let l = 0, r = height.length - 1
+  let res = 0
+  let maxL = 0, maxR = 0
+  while (l <= r) {
+    if (height[l] <= height[r]) {
+      if (height[l] >= maxL) maxL = height[l]
+      else res += maxL - height[l]
+      l++
+    } else {
+      if (height[r] >= maxR) maxR = height[r]
+      eles res += maxR - height[r]
+      r--
+    }
+  }
+  return res
+}
+```
 ## 54. Spiral Matrix  
 [link](https://leetcode.com/problems/spiral-matrix/)
 ```javascript
@@ -101,6 +122,37 @@ const merge = function(intervals) {
     }
   }
   return res
+}
+```
+## 67. Add Binary  
+[link](https://leetcode.com/problems/add-binary/)
+```javascript
+const addBinary = function(a, b) {
+  let res = ''
+  let i = a.length - 1
+  let j = b.length - 1
+  let carry = 0
+  while (i >= 0 || j >= 0 || carry > 0) {
+    carry += i >= 0 ? parseInt(a[i--]) : 0
+    carry += j >= 0 ? parseInt(b[j--]) : 0
+    res = carry % 2 + res
+    carry = parseInt(carry / 2)
+  }
+  return res
+}
+```
+## 70. Climbing Stairs  
+[link](https://leetcode.com/problems/climbing-stairs/)
+```javascript
+const climbStairs = function(n) {
+  if (n < 2) return n
+  let dp = new Array(n + 1).fill(0)
+  dp[0] = 1
+  dp[1] = 1
+  for (let i = 2; i <= n; i++) {
+    dp[i] = dp[i - 1] + dp[i - 2]
+  }
+  return dp[n]
 }
 ```
 ## 83. Remove Duplicates from Sorted List  
@@ -177,7 +229,44 @@ const levelOrder = function(root) {
   return res
 }
 ```
+## 105. Construct Binary Tree from Preorder and Inorder Traversal  
+[link](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
+```javascript
+const buildTree = function(preorder, inorder) {
+  return build(0, preorder.length - 1)
 
+  function build(l, r) {
+    if (l > r) return null
+    let p = preorder.shift()
+    let i = inorder.indexOf(p)
+    let root = new TreeNode(p)
+
+    root.left = build(l, i - 1)
+    root.right = build(i + 1, r)
+    return root
+  }
+}
+// O(N)
+```
+## 106. Construct Binary Tree from Inorder and Postorder Traversal  
+[link](https://leetcode.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/)
+```javascript
+const buildTree = function(inorder, postorder) {
+  return build(0, inorder.length - 1)
+
+  function build(l, r) {
+    if (l > r) return null
+    let p = postorder.pop()
+    let i = inorder.indexOf(p)
+    let root = new TreeNode(p)
+
+    root.right = build(i + 1, r)
+    root.left = build(l, i - 1)
+    return root
+  }
+}
+//O(n)
+```
 ## 108. Convert Sorted Array to Binary Search Tree  
 [link](https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/)
 ```javascript
@@ -213,7 +302,36 @@ const isBalanced = function(root) {
   }
 }
 ```
+## 112. Path Sum  
+[link](https://leetcode.com/problems/path-sum/)  
+```javascript
+const hasPathSum = function(root, sum) {
+  if (!root) return false
+  if (!root.left && !root.right) return sum === root.val
+  return hasPathSum(root.left, sum - root.val) || hasPathSum(root.right, sum - root.val)
+}
+```
+## 113. Path Sum II  
+[link](https://leetcode.com/problems/path-sum-ii/)
+```javascript
+const pathSum = function(root, sum) {
+  let res = []
+  dfs(root, 0, [])
+  return res
 
+  function dfs(node, cur, arr) {
+    if (!node) return
+    arr.push(node.val)
+    cur += node.val
+    if (!node.left && !node.right) {
+      if (cur === sum) res.push(arr.slice())
+      return
+    }
+    dfs(node.left, cur, arr.slice())
+    dfs(node.right, cur,arr.slice())
+  }
+}
+```
 ## 121. Best Time to Buy and Sell Stock  
 [link](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/)  
 ```javascript
@@ -272,10 +390,27 @@ const maxPathSum = function(root) {
   }
 }
 ```
-## 155. Nub Stack  
+## 139. Word Break  
+[link](https://leetcode.com/problems/word-break/)  
+```javascript
+const wordBreak = function(s, wordDict) {
+  let len = s.length, dp = new Array(len + 1)
+  for (let i = 0; i <= len; i++) { dp[i] = false }
+  dp[0] = true
+  for (let i = 1; i <= len; i++) {
+    for (let j = 0; j < i; j++) {
+      if (dp[j] && wordDict.indexOf(s.substring(j, i)) >= 0) {
+        dp[i] = true
+        break
+      }
+    }
+  }
+
+```
+## 155. Min Stack  
 [link](https://leetcode.com/problems/min-stack/)  
 ```javascript
-var MinStack = function() {
+const MinStack = function() {
   this.stack = []
 };
 
@@ -295,6 +430,20 @@ MinStack.prototype.top = function() {
 MinStack.prototype.getMin = function() {
   if (this.stack.length > 0) return this.stack[this.stack.length - 1].min 
 };
+```
+## 160. Intersection of Two Linked Lists  
+[link](https://leetcode.com/problems/intersection-of-two-linked-lists/)  
+```javascript
+const getIntersectionNode = function(headA, headB) {
+  if (!headA || !headB) return null
+  let a = headA
+  let b = headB
+  while (a != b) {
+    a = a == null ? headB : a.next
+    b = b == null ? headA : b.next
+  }
+  return a
+}
 ```
 ## 188. Best Time to Buy and Sell Stock IV  
 [link](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/)
@@ -406,6 +555,23 @@ const findKthLargest = function(nums, k) {
   }
 }
 ```
+## 230. Kth Smallest Element in a BST  
+[link](https://leetcode.com/problems/kth-smallest-element-in-a-bst/)
+```javascript
+const kthSmallest = function(root, k) {
+  let cnt = 0, res = 0
+  traverse(root, k)
+  return res
+
+  function traverse(node, k) {
+    if (!node) return
+    traverse(node.left, k)
+    cnt++
+    if (k === cnt) return res = node.val
+    traverse(node.right, k)
+  }
+}
+```
 ## 236. Lowest Common Ancestor of a Binary Tree  
 [link](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/)  
 ```javascript
@@ -457,6 +623,18 @@ const change = function(amount, coins) {
   return dp[amount]
 }
 ```
+## 543. Diameter of Binary Tree  
+[link](https://leetcode.com/problems/diameter-of-binary-tree/)
+```javascript
+const diameterOfBinaryTree = function(root) {
+  return dpt(root.left) + dpt(root.right)
+  
+  function dpt(node) {
+    if (!node) return 0
+    return 1 + Math.max(dpt(node.left), dpt(node.right))
+  }
+}
+```
 
 ## 714. Best Time to Buy and Sell Stock with Transaction Fee  
 [link](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/)
@@ -470,6 +648,20 @@ const maxProfit = function(prices, fee) {
     preSell = sell
   })
   return sell
+}
+```
+## 1143. Longest Common Subsequence  
+[link]()
+```javascript
+const longestCommonSubsequence = function(text1, text2) {
+  let dp = [...new Array(text1.length + 1)].map(_ => new Array(text2.length + 1).fill(0))
+  for (let i = 1; i < dp.length; i++) {
+    for (let j = 1; j < dp[0].length; j++) {
+      if (text1[i - 1] == text2[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1
+      else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1])
+    }
+  }
+  return dp[dp.length - 1][dp[0].length - 1]
 }
 ```
 ## 1299. Replace Elements with Greatest Element on Right Side  
