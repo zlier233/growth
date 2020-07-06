@@ -1,6 +1,25 @@
 # Hot Algo  
 
-
+## 2. 2 Sum  
+[link]()  
+```javascript
+const addTwoNumbers = function(l1, l2) {
+  let cur = new ListNode(0)
+  let l0 = cur
+  let carry = 0
+  
+  while (l1 || l2 || carry) {
+    let v1 = l1 ? l1.val : 0
+    let v2 = l2 ? l2.val : 0
+    cur.next = new ListNode((v1 + v2 + carry) % 10)
+    cur = cur.next
+    carry = (v1 + v2 + carry) / 10 | 0
+    if (l1) l1 = l1.next
+    if (l2) l2 = l2.next
+  }
+  return l0.next
+}
+```
 ## 3. Longest Substring Without Repeating Characters  
 [link](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
 ```javascript
@@ -405,7 +424,20 @@ const wordBreak = function(s, wordDict) {
       }
     }
   }
-
+```
+## 141. Linked List Cycle  
+[link](https://leetcode.com/problems/linked-list-cycle/)
+```javascript
+const hasCycle = function(head) {
+  let walker = head
+  let runner = head
+  while (runner && runner.next) {
+    walker = walker.next
+    runner = runner.next.next
+    if (walker == runner) return true
+  }
+  return false
+}
 ```
 ## 155. Min Stack  
 [link](https://leetcode.com/problems/min-stack/)  
@@ -582,7 +614,40 @@ const lowestCommonAncestor = function(root, p, q) {
   return (left && right) ? root : (left || right)
 }
 ```
+## 297. Serialize and Deserialize Binary Tree  
+[link](https://leetcode.com/problems/serialize-and-deserialize-binary-tree/)
+```javascript
+const serialize = function(root) {
+  let data = []
+  return dfs(root, data)
+  
+  function dfs(node, data) {
+    if (!node) data.push(null)
+    else {
+      data.push(node.val)
+      dfs(node.left, data)
+      dfs(node.right, data)
+    }
+    return data
+  }
+}
 
+const deserialize = function(data) {
+  return helper()
+
+  function helper() {
+    if (data.length === 0) return
+    let next = data.shift()
+    if (next == null) return null
+    else {
+      let node = new TreeNode(next)
+      node.left = helper()
+      node.right = helper()
+      return node
+    }
+  }
+}
+```
 ## 309. Best Time to Buy and Sell Stock with Cooldown  
 [link](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/)  
 ```javascript
@@ -611,8 +676,41 @@ const coinChange = function(coin, amount) {
   return dp[amount] > amount ? -1 : dp[amount]
 }
 ```
-## 518. Coin Change II  
+## 503. Next Greater Element II  
 [link]()
+```javascript
+const nextGreaterElements = function(nums) {
+  const n = nums.length, next = new Array(n).fill(-1)
+  const stack = []
+  for (let i = 0; i < n * 2; i++) {
+    let num = nums[i % n]
+    while (stack.length && nums[stack[stack.length - 1]] < num) { 
+      next[stack.pop()] = num
+    }
+    if (i < n) stack.push(i)
+  }
+  return next
+}
+```
+## 515. Find Largest Value in Each Tree Row  
+[link](https://leetcode.com/problems/find-largest-value-in-each-tree-row/)
+```javascript
+const largestValues = function(root) {
+  let res = []
+  dfs(root, 0)
+  return res
+  
+  function dfs(node, l) {
+    if (!node) return
+    if (!res[l] && res[l] !== 0) res[l] = node.val
+    else res[l] = Math.max(res[l], node.val)
+    dfs(node.left, l + 1)
+    dfs(node.right, l + 1)
+  }
+}
+```
+## 518. Coin Change II  
+[link](https://leetcode.com/problems/coin-change-2/)
 ```javascript
 const change = function(amount, coins) {
   let dp = new Array(amount + 1).fill(0)
