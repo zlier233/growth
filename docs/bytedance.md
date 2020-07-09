@@ -60,6 +60,86 @@ const threeSum = function(nums) {
   return arr
 }
 ```
+## 22. Generate Parentheses  
+[link](https://leetcode.com/problems/generate-parentheses/)  
+```javascript
+const generateParenthesis = function(n) {
+  const res = []
+  helper(0, 0, 0, '')
+  return res
+
+  function helper(left, right, level, tmp) {
+    if (right > left || level > 2 * n) return
+    else if (level === 2 * n && left === right) res.push(tmp.slice())
+    else {
+      helper(left + 1, right, level + 1, tmp + '(')
+      helper(left, right + 1, level + 1, tmp + ')')
+    }
+  }
+}
+```
+## 23. Merge k Sorted Lists  
+[link](https://leetcode.com/problems/merge-k-sorted-lists/)  
+```javascript
+const mergeKLists = function(lists) {
+  function mergeLists(a, b) {
+    const dummy = new ListNode(0)
+    let tmp = dummy
+    while (a && b) {
+      if (a.val < b.val) {
+        tmp.next = a
+        a = a.next
+      } else {
+        tmp.next = b
+        b = b.next
+      }
+      tmp = tmp.next
+    }
+    if (a) tmp.next = a
+    if (b) tmp.next = b
+    return dummy.next
+  }
+    
+  if (lists.length === 0) return null
+  while (lists.length > 1) {
+    let a = lists.shift()
+    let b = lists.shift()
+    const h = mergeLists(a, b)
+    lists.push(h)
+  }
+  return lists[0]
+}
+
+```
+## 25. Reverse Nodes in k-Group  
+[link](https://leetcode.com/problems/reverse-nodes-in-k-group/)  
+```javascript
+const reverseKGroup = function(head, k) {
+  let dummy = new ListNode(0)
+  dummy.next = head
+  let h = dummy
+  while (h) {
+    let node = h
+    for (let i = 0; i < k && node; i++) {
+      node = node.next
+    }
+    if (node == null) break
+    
+    let prev = null, cur = h.next, next = null
+    for (let i = 0; i < k; i++) {
+      next = cur.next
+      cur.next = prev
+      prev = cur
+      cur = next
+    }
+    let tail = h.next
+    tail.next = cur
+    h.next = prev
+    h = tail
+  }
+  return dummy.next
+}
+```
 ## 33. Search in Rotated Sorted Array  
 [link](https://leetcode.com/problems/search-in-rotated-sorted-array/)  
 ```javascript
@@ -439,6 +519,78 @@ const hasCycle = function(head) {
   return false
 }
 ```
+## 146. LRU Cache  
+[link](https://leetcode.com/problems/lru-cache/)  
+```javascript
+var Node = function(key, value) {
+  this.key = key
+  this.val = value
+  this.prev = this.next = null
+}
+
+var DoublyLinkedList = function() {
+  this.head = new Node
+  this.tail = new Node
+  this.head.next = this.tail
+  this.tail.prev = this.head
+}
+// insert a node right after head
+DoublyLinkedList.prototype.insertHead = function(node) {
+  node.prev = this.head
+  node.next = this.head.next
+  this.head.next.prev = node
+  this.head.next = node
+}
+// remove node from linked list
+DoublyLinkedList.prototype.removeNode = function(node) {
+  let prev = node.prev
+  let next = node.next
+  prev.next = next
+  next.prev = prev
+}
+// move a node to the head
+DoublyLinkedList.prototype.moveToHead = function(node) {
+  this.removeNode(node)
+  this.insertHead(node)
+}
+// remove the tail element and return its key
+DoublyLinkedList.prototype.removeTail = function() {
+  let tail = this.tail.prev
+  this.removeNode(tail)
+  return tail.key
+}
+var LRUCache = function(capacity) {
+  this.capacity = capacity
+  this.currentSize = 0
+  this.hash = new Map()
+  this.dll = new DoublyLinkedList()
+};
+
+LRUCache.prototype.get = function(key) {
+  let node = this.hash.get(key)
+  if (!node) return -1
+  this.dll.moveToHead(node)
+  return node.val
+};
+
+LRUCache.prototype.put = function(key, value) {
+  let node = this.hash.get(key)
+  if (!node) {
+    let newNode = new Node(key, value)
+    this.hash.set(key, newNode)
+    this.dll.insertHead(newNode)
+    this.currentSize++
+    if (this.currentSize > this.capacity) {
+      let tailKey = this.dll.removeTail()
+      this.hash.delete(tailKey)
+      this.currentSize--
+    }
+  } else {
+    node.val = value
+    this.dll.moveToHead(node)
+  }
+};
+```
 ## 155. Min Stack  
 [link](https://leetcode.com/problems/min-stack/)  
 ```javascript
@@ -498,7 +650,6 @@ const maxProfit = function(k, prices) {
   return sell[k]
 }
 ```
-
 ## 199. Binary Tree Right Side View  
 [link](https://leetcode.com/problems/binary-tree-right-side-view/)
 ```javascript
@@ -530,6 +681,35 @@ const rightSideView = function(root) {
   }
   return res
 
+}
+```
+## 200. Number of Islands  
+[link](https://leetcode.com/problems/number-of-islands/)  
+```javascript
+const numIslands = function(grid) {
+  if (!grid || !grid.length || !grid[0].length) return 0
+  const m = grid.length, n = grid[0].length
+  let cnt = 0
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; i < n; j++) {
+      if (grid[i][j] == 1) {
+        dfs(i, j)
+        cnt++
+      }
+    }
+  }
+  return cnt
+
+  function dfs(x, y) {
+    if (x < 0 || y < 0 || x >= m || y >= n || grid[x][y] !== '1') return 
+    grid[x][y] = '0'
+    let directions = [-1, 0, 1, 0, -1]
+    for (let i = 0; i < directions.length - 1; i++) {
+      let newX = x + directions[i]
+      let newY = y + directions[i + 1]
+      dfs(newX, newY)
+    }
+  }
 }
 ```
 ## 206. Reverse Linked List  
@@ -676,6 +856,43 @@ const coinChange = function(coin, amount) {
   return dp[amount] > amount ? -1 : dp[amount]
 }
 ```
+## 347. Top K Frequent Elements // TODO
+[link](https://leetcode.com/problems/top-k-frequent-elements/)  
+```javascript
+const topKFrequent = function(nums, k) {
+  const map = new Map()
+  const res = []
+  const bucket = [...Array(nums.length + 1)].map(_ => [])
+  for (let num of nums) {
+    map[num] = ~~map[num] + 1
+  }
+  for (let num in map) {
+    bucket[map[num]].push(num | 0)
+  }
+  for (let i = nums.length; i >= 0 && k > 0; k--) {
+    while (bucket[i].length === 0) i--
+    res.push(bucket[i].shift())
+  }
+  return res
+}
+```
+## 415. Add Strings  
+[link](https://leetcode.com/problems/add-strings/)  
+```javascript
+const addStrings = function(num1, num2) {
+  let m = num1.length - 1
+  let n = num2.length - 1
+  let carry = 0
+  let res = ''
+  while (m >= 0 || n >= 0 || carry) {
+    carry += m >= 0 ? num1[m--] | 0 : 0
+    carry += n >= 0 ? num2[n--] | 0 : 0
+    res = carry % 10 + res
+    carry = carry / 10 | 0
+  }
+  return res
+}
+```
 ## 503. Next Greater Element II  
 [link]()
 ```javascript
@@ -733,6 +950,38 @@ const diameterOfBinaryTree = function(root) {
   }
 }
 ```
+## 695.  Max Area of Island  
+[link](https://leetcode.com/problems/max-area-of-island/)  
+```javascript
+const maxAreaOfIsland = function(grid) {
+  if (!grid || !grid.length || !grid[0].length) return 0
+  const m = grid.length, n = grid[0].length
+  let max = 0
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      if (grid[i][j] == 1) max = Math.max(dfs(i, j), max)
+    }
+  }
+  return max
+
+  function dfs(x, y) {
+    grid[x][y] = 0
+    let sum = 1
+    const directions = [-1, 0, 1, 0, -1]
+    for (let i = 0; i < directions.length - 1; i++) {
+      let newX = x + directions[i]
+      let newY = y + directions[i + 1]
+      if (!outOfBound(newX, newY) && grid[newX][newY] == 1) sum += dfs(newX, newY)
+    }
+    return sum
+  }
+
+  function outOfBound(x, y) {
+    return x < 0 || y < 0 || x >= m || y >= n
+  }
+
+}
+```
 
 ## 714. Best Time to Buy and Sell Stock with Transaction Fee  
 [link](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/)
@@ -748,8 +997,27 @@ const maxProfit = function(prices, fee) {
   return sell
 }
 ```
+## 958. Check Completeness of a Binary Tree  
+[link](https://leetcode.com/problems/check-completeness-of-a-binary-tree/)  
+```javascript
+const isCompleteTree = function(root) {
+  if (!root) return true
+  let end = false
+  let q = [root]
+  while (q.length) {
+    let cur = q.shift()
+    if (cur == null) end = true
+    else {
+      if (end) return false
+      q.push(cur.left)
+      q.push(cur.right)
+    }
+  }
+  return true
+}
+```
 ## 1143. Longest Common Subsequence  
-[link]()
+[link](https://leetcode.com/problems/longest-common-subsequence/)
 ```javascript
 const longestCommonSubsequence = function(text1, text2) {
   let dp = [...new Array(text1.length + 1)].map(_ => new Array(text2.length + 1).fill(0))
