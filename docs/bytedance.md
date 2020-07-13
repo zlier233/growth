@@ -60,13 +60,12 @@ const findMedian = function(nums1, nums2) {
       if ((len1 + len2) & 1) return resLeft
       if (i === m) resRight = nums2[j]
       else if (j === n) resRight = nums1[i]
-      else resRight = Math.max(num1[i], nums2[j])
+      else resRight = Math.min(num1[i], nums2[j])
       return (resLeft + resRight) / 2.0
     }
   }
 }
 ```
-
 
 ## 15. 3Sum  
 [link](https://leetcode.com/problems/3sum/)  
@@ -460,11 +459,11 @@ const buildTree = function(inorder, postorder) {
 
   function build(l, r) {
     if (l > r) return null
-    let p = postorder.pop()
+    let p = postorder.pop()  // ATTENTION
     let i = inorder.indexOf(p)
     let root = new TreeNode(p)
 
-    root.right = build(i + 1, r)
+    root.right = build(i + 1, r) // ATTENTION
     root.left = build(l, i - 1)
     return root
   }
@@ -504,6 +503,31 @@ const isBalanced = function(root) {
     if (Math.abs(l - r) > 1) return -1
     return Math.min(l, r) + 1
   }
+}
+```
+## 111. Minimum Depth of Binary Tree  
+[link](https://leetcode.com/problems/minimum-depth-of-binary-tree/)  
+```javascript
+const minDepth = function(root) {
+  // bfs
+  if (!root) return 0
+  let q = [root]
+  let dpt = 0
+  while (q.length) {
+    dpt++
+    let len = q.length
+    for (let i = 0; i < len; i++) {
+      let cur = q.shift()
+      if (!cur.left && !cur.right) return dpt
+      if (cur.left) q.push(cur.left)
+      if (cur.right) q.push(cur.right)
+    }
+  }
+  // dfs
+  if (!root) return 0
+  let l = minDepth(root.left)
+  let r = minDepth(root.right)
+  return 1 + Math.min(l, r) || Math.max(l, r)
 }
 ```
 ## 112. Path Sum  
@@ -642,6 +666,7 @@ const hasCycle = function(head) {
   }
   return false
 }
+
 ```
 ## 143. Reorder List  
 [link](https://leetcode.com/problems/reorder-list/)  
@@ -902,7 +927,7 @@ var reverseList = function(head) {
 const findKthLargest = function(nums, k) {
   k = nums.length - k
   let lo = 0, hi = nums.length - 1
-  while (lo < hi) {
+  while (lo <= hi) {
     let j = partition(nums, lo, hi)
     if (j < k) lo = j + 1
     else if (j > k) hi = j - 1
@@ -928,6 +953,7 @@ const findKthLargest = function(nums, k) {
     nums[j] = tmp
   }
 }
+// O(N)  worst O(N^2)
 ```
 ## 230. Kth Smallest Element in a BST  
 [link](https://leetcode.com/problems/kth-smallest-element-in-a-bst/)
@@ -943,6 +969,36 @@ const kthSmallest = function(root, k) {
     cnt++
     if (k === cnt) return res = node.val
     traverse(node.right, k)
+  }
+}
+```
+## 234. Palindrome Linked List  
+[link](https://leetcode.com/problems/palindrome-linked-list/)  
+```javascript
+const isPalindrome = function(head) {
+  let fast = head
+  let slow = head
+  while (fast && fast.next) {
+    fast = fast.next.next
+    slow = slow.next
+  }
+  let half = reverse(slow)
+  while (head && half) {
+    if (head.val !== half.val) return false
+    head = head.next
+    half = half.next
+  }
+  return true
+  
+  function reverse(head) {
+    let prev = null
+    while (head) {
+      let next = head.next
+      head.next = prev
+      prev = head
+      head = next
+    }
+    return prev
   }
 }
 ```
@@ -1018,6 +1074,20 @@ const coinChange = function(coin, amount) {
   return dp[amount] > amount ? -1 : dp[amount]
 }
 ```
+## 344. Reverse String  
+[link](https://leetcode.com/problems/reverse-string/)  
+```javascript
+const reverseString = function(s) {
+  let i = 0, j = s.length - 1
+  while (i < j) {
+    let tmp = s[i]
+    s[i] = s[j]
+    s[j] = tmp
+    i++
+    j--
+  }
+}
+```
 ## 347. Top K Frequent Elements // TODO
 [link](https://leetcode.com/problems/top-k-frequent-elements/)  
 ```javascript
@@ -1085,10 +1155,28 @@ const addTwoNumbers = function(l1, l2) {
   return dummy.next
 
 }
-
+```
+## 496. Next Greater Element I  
+[link](https://leetcode.com/problems/next-greater-element-i/)  
+```javascript
+const nextGreaterElemenet = function(nums1, nums2) {
+  let map = new Map()
+  let stack = []
+  for (let num of nums2) {
+    while (stack.length && stack[stack.length - 1] < num) {
+      map.set(stack.pop(), num)
+    }
+    stack.push(num)
+  }
+  for (let i = 0; i < nums1.length; i++) {
+    nums1[i] = map.has(nums1[i]) ? map.get(nums1[i]) : -1
+  }
+  return nums1
+}
+// O(N)
 ```
 ## 503. Next Greater Element II  
-[link]()
+[link](https://leetcode.com/problems/next-greater-element-ii/)  
 ```javascript
 const nextGreaterElements = function(nums) {
   const n = nums.length, next = new Array(n).fill(-1)
@@ -1101,6 +1189,19 @@ const nextGreaterElements = function(nums) {
     if (i < n) stack.push(i)
   }
   return next
+}
+
+```
+## 509. Fibonacci Number  
+[link](https://leetcode.com/problems/fibonacci-number/)  
+```javascript
+const fib = function(N) {
+  const dp = new Array(N + 1).fill(0)
+  dp[1] = 1
+  for (let i = 2; i <= N; i++) {
+    dp[i] = dp[i - 1] + dp[i - 2]
+  }
+  return dp[N]
 }
 ```
 ## 515. Find Largest Value in Each Tree Row  
@@ -1221,6 +1322,67 @@ const isCompleteTree = function(root) {
     }
   }
   return true
+}
+```
+## 994. Rotting Oranges  
+[link](https://leetcode.com/problems/rotting-oranges/)  
+```javascript
+const orangesRotting = function(grid) {
+  let q = []
+  let mins = 0
+  let fresh = 0
+  for (let i = 0; i < grid.length; i++) {
+    for (let j = 0; j < grid[0].length; j++) {
+      if (grid[i][j] == 1) fresh++
+      if (grid[i][j] == 2) q.push([i, j])
+    }
+  }
+  
+  while (q.length && fresh) {
+    const directions = [-1, 0, 1, 0, -1]
+    
+    let next = []
+    while (q.length) {
+      let [x, y] = q.shift()
+      for (let i = 0; i < directions.length; i++) {
+        let newX = x + directions[i]
+        let newY = y + directions[i + 1]
+        if (!outOfBound(newX, newY)) {
+          if (grid[newX][newY] == 1) {
+            grid[newX][newY] = 2
+            fresh--
+            next.push([newX, newY])
+          }
+        }
+      }
+    }
+    mins++
+    q = next
+  }
+  return fresh == 0 ? mins : -1
+  
+  function outOfBound(x, y) {
+    return x < 0 || y < 0 || x >= grid.length || y >= grid[0].length
+  }
+}
+```
+## 977. Squares Of a Sorted Array  
+[link](https://leetcode.com/problems/squares-of-a-sorted-array/)  
+```javascript
+const sortedSquares = function(A) {
+  const n = A.length
+  let res = []
+  let i = 0, j = n - 1
+  for (let k = n - 1; k >= 0; k--) {
+    if (Math.abs(A[i]) > Math.abs(A[j])) {
+      res[k] = A[i] * A[i]
+      i++
+    } else {
+      res[k] = A[j] * A[j]
+      j--
+    }
+  }
+  return res
 }
 ```
 ## 1143. Longest Common Subsequence  
