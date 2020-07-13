@@ -1515,7 +1515,182 @@ const shellSort = function(nums) {
   return nums
 }
 ```
+```javascript
+const bucketSort(nums) {
+  if (nums.length === 0) return nums
+  let i
+  let minVal = nums[0]
+  let maxVal = nums[0]
+  for (let i = 1; i < nums.length; i++) {
+    if (nums[i] < minVal) minVal = nums[i]
+    else if (nums[i] > maxVal) maxVal = nums[i]
+    else {}
+  }
 
+  let bucketSize = bucketSize | 5
+  let bucketCount = (maxVal - minVal) / bucketSize | 0 + 1
+  let buckets = new Array(bucketCount).fill([])
+  for (let i = 0; i < nums.length; i++) {
+    buckets[(nums[i] - minVal) / bucketSize | 0].push(nums[i])
+  }
+  const res = []
+  for (let i = 0; i < buckets.length; i++) {
+    insertSort(buckets[i])
+    for (let j = 0; j < buckets[i].length; j++) {
+      res.push(buckets[i][j])
+    }
+  }
+  return res
+}
+```
+## Tree Traverse  
+### PreOrder  
+```javascript
+const preOrder = function(root) {
+  // dfs
+  let res = []
+  dfs(root)
+  return res
+
+  function dfs(node) {
+    if (!node) return
+    res.push(node.val)
+    dfs(node.left)
+    dfs(node.right)
+  }
+
+  // morris
+  let res = []
+  while (root) {
+    if (!root.left) {
+      res.push(root.val)
+      root = root.right
+    } else {
+      // find predecessor
+      let pre = root.left
+      while (pre.right && pre.right != root) { pre = pre.right }
+      if (!pre.right) {
+        res.push(root.val)
+        pre.right = root
+        root = root.left
+      } else {
+        root = root.right
+        pre.right = null
+      }
+    }
+  }
+  return res
+}
+```
+### InOrder  
+```javascript
+const inOrder = function(root) {
+  // morris
+  let res = []
+  while (root) {
+    if (!root.left) {
+      res.push(root.val)
+      root = root.right
+    } else {
+      // find predecessor
+      let pre = root.left
+      while (pre.right && pre.right != root) { pre = pre.right }
+      if (!pre.right) {
+        pre.right = root
+        root = root.left
+      } else {
+        res.push(root.val)
+        root = root.right
+        pre.right = null
+      }
+    }
+    return res
+  }
+  // dfs
+  let res = []
+  dfs(root)
+  return res
+
+  function dfs(node) {
+    if (!node) return
+    dfs(node.left)
+    res.push(node.val)
+    dfs(node.right)
+  }
+
+  // stack
+  let stack = []
+  let res = []
+  while (root || stack.length) {
+    while (root) {
+      stack.push(root)
+      root = root.left
+    }
+    root = stack.pop()
+    res.push(root.val)
+    root = root.right
+  }
+
+  
+}
+```
+### PostOrder  
+```javascript
+const postOrder = function(root) {
+  // morris
+  let res = []
+  while (root) {
+    if (!root.right) {
+      res.push(root.val)
+      root = root.left
+    } else {
+      // find predecessor
+      let pre = root.right
+      while (pre.left && pre.left != root) { pre = pre.left }
+      if (!pre.left) {
+        res.push(root.val)
+        pre.left = root
+        root = root.right
+      } else {
+        root = root.left
+        pre.left = null
+      }
+    }
+  }
+  for (let i = 0; i < res.length / 2 | 0; i++) {
+    let tmp = res[i]
+    res[i] = res[res.length - i]
+    res[res.length - i] = tmp
+  }
+  return res
+  
+  // dfs
+  let res = []
+  dfs(root)
+  return res
+
+  function dfs(node) {
+    if (!node) return
+    dfs(node.left)
+    dfs(node.right)
+    res.push(node.val)
+  }
+  // stack
+  let stack = []
+  let res = []
+  while (root || stack.length) {
+    while (root) {
+      stack.push(root)
+      res.unshift(root.val)
+      root = root.right
+    }
+    root = stack.pop()
+    root = root.left
+  }
+  return res
+
+}
+```
 
 
 

@@ -34,6 +34,38 @@ const lengthOfLongestSubstring = function(s) {
   return res
 }
 ```
+## 4. Median Of Two Sorted Arrays  
+[link](https://leetcode.com/problems/median-of-two-sorted-arrays/)  
+```javascript
+const findMedian = function(nums1, nums2) {
+  let len1 = nums1.length, len2 = nums2.length
+  let resLeft = 0, resRight = 0
+  if (len1 > len2) {
+    let tmp = len2, tmpNums = nums2
+    len2 = len1
+    nums2 = nums1
+    len1 = tmp
+    nums1 = tmpNums
+  }
+  let lo = 0, hi = len1, halfLen = (len1 + len2 + 1) >> 1
+  while (lo <= hi) {
+    let i = lo + ((hi - lo) >> 1), j = halfLen - i
+    if (i < len1 && nums2[j - 1] > nums1[i]) lo = i + 1
+    else if (i > 0 && nums1[i - 1] > nums2[j]) hi = i - 1
+    else {
+      if (i === 0) resLeft = nums2[j - 1]
+      else if (j === 0) resLeft = nums1[i - 1]
+      else resLeft = Math.max(nums1[i - 1], nums2[j - 1])
+
+      if ((len1 + len2) & 1) return resLeft
+      if (i === m) resRight = nums2[j]
+      else if (j === n) resRight = nums1[i]
+      else resRight = Math.max(num1[i], nums2[j])
+      return (resLeft + resRight) / 2.0
+    }
+  }
+}
+```
 
 
 ## 15. 3Sum  
@@ -159,6 +191,23 @@ const search = function(nums, target) {
   return -1
 }
 ```
+## 41. First Missing Positive  
+[link](https://leetcode.com/problems/first-missing-positive/)  
+```javascript
+const irstMissingPositive = function(nums) {
+  // put each num in right place
+  // missing num in range 1 ~ nums.length
+  for (let i = 0; i < nums.length; i++) {
+    while (nums[i] > 0 && nums[i] <= nums.length && nums[i] != nums[nums[i] - 1]) {
+      swap(i, nums[i] - 1)
+    }
+  }
+  for (let i = 0; i < nums.length; i++) {
+    if (nums[i] != i + 1) return i + 1
+  }
+  return nums.length + 1
+}
+```
 ## 42. Trapping Rain Water  //TODO
 [link](https://leetcode.com/problems/trapping-rain-water/)
 ```javascript
@@ -221,6 +270,41 @@ const merge = function(intervals) {
     }
   }
   return res
+}
+```
+## 62. Unique Paths  
+[link](https://leetcode.com/problems/unique-paths/)   
+```javascript
+const uniquePath = function(m, n) {
+  const dp = [...Array(m)].map(_ => Array(n).fill(1))
+  for (let i = 1; i < m; i++) {
+    for (let j = 1; j < n; j++) {
+      dp[i][j] = dp[i - 1][j] + dp[i][j - 1]
+    }
+  }
+  return dp[m - 1][n - 1]
+}
+```
+## 63. Unique Paths II  
+[link](https://leetcode.com/problems/unique-paths-ii/)  
+```javascript
+const uniquePathsWithObstacles = function(obstacleGrid) {
+  const m = obstacleGrid.length, n = obstacleGrid[0].length
+  const dp = [...Array(m)].map(_ => Array(n).fill(1))
+  dp[0][0] = obstacleGrid[0][0] == 1 ? 0 : 1
+  if (dp[0][0] == 0) return 0
+  for (let i = 1; i < m; i++) {
+    dp[i][0] = obstacleGrid[i][0] == 1 ? 0 : dp[i - 1][0]
+  }
+  for (let i = 1; i < n; i++) {
+    dp[0][i] = obstacleGrid[0][i] == 1 ? 0 : dp[0][i - 1]
+  }
+  for (let i = 1; i < m; i++) {
+    for (let j = 1; j < n; j++) {
+      dp[i][j] = obstacleGrid[i][j] == 1 ? 0 : dp[i - 1][j] + dp[i][j - 1]
+    }
+  }
+  return dp[m - 1][n - 1]
 }
 ```
 ## 67. Add Binary  
@@ -292,6 +376,27 @@ const merge = function(nums1, m, nums2, n) {
     if (n < 0 || nums1[m] > nums2[n]) nums1[len] = nums1[m--]
     else nums1[len] = nums2[n--]
   }
+}
+```
+## 92. Reverse Linked List II  
+[link](https://leetcode.com/problems/reverse-linked-list-ii/)  
+```javascript
+const reverseBetween = function(head, m, n) {
+  if (!head) return null
+  let dummy = new ListNode(0)
+  dummy.next = head
+  let pre = dummy
+  for (let i = 0; i < m - 1; i++) { pre = pre.next }
+  let start = pre.next
+  let then = start.next
+  // insert then into pre and pre.next
+  for (let i = 0; i < n - m; i++) {
+    start.next = then.next
+    then.next = pre.next
+    pre.next = then
+    then = start.next
+  }
+  return dummy.next
 }
 ```
 ## 102. Binary Tree Level Order Traversal  
@@ -489,6 +594,25 @@ const maxPathSum = function(root) {
   }
 }
 ```
+## 128. Longest Consecutive Sequence  
+[link](https://leetcode.com/problems/longest-consecutive-sequence/)  
+```javascript
+const longestConsecutive = function(nums) {
+  let set = new Set(nums)
+  let cur = 0, max = 0
+  for (let num of nums) {
+    if (!set.has(num - 1)) {
+      let tmp = num
+      while (set.has(tmp++)) {
+        cur++
+        max = Math.max(max, cur)
+      }
+      cur = 0
+    }
+  }
+  return max
+}
+```
 ## 139. Word Break  
 [link](https://leetcode.com/problems/word-break/)  
 ```javascript
@@ -517,6 +641,44 @@ const hasCycle = function(head) {
     if (walker == runner) return true
   }
   return false
+}
+```
+## 143. Reorder List  
+[link](https://leetcode.com/problems/reorder-list/)  
+```javascript
+const reorderList = function(head) {
+  if (!head || !head.next) return
+  
+  let fast = head
+  let slow = head
+  while (fast.next && fast.next.next) {
+    slow = slow.next
+    fast = fast.next.next
+  }
+
+  // split
+  let part2 = slow.next
+  slow.next = null
+
+  // reverse part 2
+  let prev = null, cur = part2, next = null
+  while (cur) {
+    next = cur.next
+    cur.next = prev
+    prev = cur
+    cur = next
+  }
+  part2 = prev
+
+  // merge
+  while (head && part2) {
+    let p1 = head.next
+    let p2 = part2.next
+    head.next = part2
+    head.next.next = p1
+    part2 = p2
+    head = p1
+  }
 }
 ```
 ## 146. LRU Cache  
@@ -893,6 +1055,38 @@ const addStrings = function(num1, num2) {
   return res
 }
 ```
+## 445. Add Two Numbers II  
+[link](https://leetcode.com/problems/add-two-numbers-ii/)  
+```javascript
+const addTwoNumbers = function(l1, l2) {
+  let s1 = [], s2 = []
+  while (l1) {
+    s1.push(l1.lal)
+    l1 = l1.next
+  }
+  while (l2) {
+    s2.push(l2.lal)
+    l2 = l2.next
+  }
+
+  let dummy = new ListNode(0)
+  let cur = null, next = null
+  let carry = 0
+  while (s1.length || s2.length || carry) {
+    carry += s1.length ? s1.pop() : 0
+    carry += s2.length ? s2.pop() : 0
+    cur = new ListNode(carry % 10)
+    carry = carry / 10 | 0
+     // just insert the new cur between dummy and next
+    dummy.next = cur
+    cur.next = next
+    next = cur
+  }
+  return dummy.next
+
+}
+
+```
 ## 503. Next Greater Element II  
 [link]()
 ```javascript
@@ -995,6 +1189,19 @@ const maxProfit = function(prices, fee) {
     preSell = sell
   })
   return sell
+}
+```
+## 814. Binary Tree Pruning  
+[link](https://leetcode.com/problems/binary-tree-pruning/)  
+```javascript
+const pruneTree = function(root) {
+  if (!root) return null
+  const left = pruneTree(root.left)
+  const right = pruneTree(root.right)
+  if (!left) root.left = left
+  if (!right) root.right = right
+
+  return (!root.left && !root.right && root.val === 0) ? null : root
 }
 ```
 ## 958. Check Completeness of a Binary Tree  
