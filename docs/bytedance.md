@@ -1,7 +1,17 @@
 # Hot Algo  
-
-## 2. 2 Sum  
-[link]()  
+## 1. Two Sum  
+[link](https://leetcode.com/problems/two-sum/)  
+```javascript
+const twoSum = function(nums, target) {
+  const map = new Map()
+  for (let i = 0; i < nums.length; i++) {
+    if (map.has(target - nums[i])) return [map.get(target - nums[i]), i]
+    map.set(nums[i], i)
+  }
+}
+```
+## 2. Add Two Numbers  
+[link](https://leetcode.com/problems/add-two-numbers/)  
 ```javascript
 const addTwoNumbers = function(l1, l2) {
   let cur = new ListNode(0)
@@ -38,35 +48,57 @@ const lengthOfLongestSubstring = function(s) {
 [link](https://leetcode.com/problems/median-of-two-sorted-arrays/)  
 ```javascript
 const findMedian = function(nums1, nums2) {
-  let len1 = nums1.length, len2 = nums2.length
-  let resLeft = 0, resRight = 0
-  if (len1 > len2) {
-    let tmp = len2, tmpNums = nums2
-    len2 = len1
-    nums2 = nums1
-    len1 = tmp
-    nums1 = tmpNums
+  let m = nums1.length, n = nums2.length
+  if (m > n) {
+    let tmp = m, tmpNum = nums1
+    m = n
+    nums1 = nums2
+    n = tmp
+    nums2 = tmpNum
   }
-  let lo = 0, hi = len1, halfLen = (len1 + len2 + 1) >> 1
+  let maxLeft = 0, minRight = 0
+  let lo = 0, hi = m, halfLen = (m + n + 1) / 2 | 0
   while (lo <= hi) {
     let i = lo + ((hi - lo) >> 1), j = halfLen - i
-    if (i < len1 && nums2[j - 1] > nums1[i]) lo = i + 1
-    else if (i > 0 && nums1[i - 1] > nums2[j]) hi = i - 1
+    if (i > 0 && nums1[i - 1] > nums2[j]) hi = i - 1
+    else if (j > 0 && nums2[j - 1] > nums1[i]) lo = i + 1
     else {
-      if (i === 0) resLeft = nums2[j - 1]
-      else if (j === 0) resLeft = nums1[i - 1]
-      else resLeft = Math.max(nums1[i - 1], nums2[j - 1])
-
-      if ((len1 + len2) & 1) return resLeft
-      if (i === m) resRight = nums2[j]
-      else if (j === n) resRight = nums1[i]
-      else resRight = Math.min(num1[i], nums2[j])
-      return (resLeft + resRight) / 2.0
+      if (i === 0) maxLeft = nums2[j - 1]
+      else if (j === 0) maxLeft = nums1[i - 1]
+      else maxLeft = Math.max(nums1[i - 1], nums2[j - 1])
+      if ((m + n) & 1) return maxLeft
+      
+      if (i === m) minRight = nums2[j]
+      else if (j === n) minRight = nums1[i]
+      else minRight = Math.min(nums1[i], nums2[j])
+      return (maxLeft + minRight) / 2.0
     }
   }
 }
 ```
-
+## 8. String to Integer (atoi)  
+[link](https://leetcode.com/problems/string-to-integer-atoi/)  
+```javascript
+const myAtoi = function(str) {
+  let filter = '0123456789+- '
+  let sign = 1
+  let res = 0
+  for (let char of str) {
+    let idx = filter.indexOf(char) 
+    if (idx >= 0) {
+      if (char === ' ') continue
+      if (filter[10] === '+') filter = filter.slice(0, 10)
+      if (char === '+') continue
+      if (char === '-') { sign = -sign; continue; }
+      res = 10 * res + idx
+    } else break
+  }
+  res = res * sign
+  if (res > Math.pow(2, 31) - 1) return Math.pow(2, 31)
+  if (res < -Math.pow(2, 31)) return -Math.pow(2, 31)
+  return res 
+}
+```
 ## 15. 3Sum  
 [link](https://leetcode.com/problems/3sum/)  
 ```javascript
@@ -89,6 +121,25 @@ const threeSum = function(nums) {
     }
   }
   return arr
+}
+```
+## 20. Valid Parentheses  
+[link](https://leetcode.com/problems/valid-parentheses/)  
+```javascript
+const isValid = function(s) {
+  let map = {
+    '(': ')',
+    '{': '}',
+    '[': ']'
+  }
+  const stack = []
+  for (let i = 0; i < s.length; i++) {
+    if (map[s[i]]) stack.push(map[s[i]])
+    else {
+      if (s[i] !== stack.pop()) return false
+    }
+  }
+  return stack.length === 0
 }
 ```
 ## 22. Generate Parentheses  
@@ -290,7 +341,7 @@ const uniquePath = function(m, n) {
 const uniquePathsWithObstacles = function(obstacleGrid) {
   const m = obstacleGrid.length, n = obstacleGrid[0].length
   const dp = [...Array(m)].map(_ => Array(n).fill(1))
-  dp[0][0] = obstacleGrid[0][0] == 1 ? 0 : 1
+  dp[0][0] = obstacleGrid[0][0] == 1 ? 0 : 1   // ATT
   if (dp[0][0] == 0) return 0
   for (let i = 1; i < m; i++) {
     dp[i][0] = obstacleGrid[i][0] == 1 ? 0 : dp[i - 1][0]
@@ -304,6 +355,17 @@ const uniquePathsWithObstacles = function(obstacleGrid) {
     }
   }
   return dp[m - 1][n - 1]
+}
+```
+## 69. Sqrt(x)  
+[link](https://leetcode.com/problems/sqrtx/)  
+```javascript
+const mySqrt = function(x) {
+  let hi = x
+  while (hi * hi > x) {
+    hi = (hi + x / hi) >> 1
+  }
+  return hi
 }
 ```
 ## 67. Add Binary  
@@ -398,6 +460,28 @@ const reverseBetween = function(head, m, n) {
   return dummy.next
 }
 ```
+## 100. Same Tree  
+[link](https://leetcode.com/problems/same-tree/)  
+```javascript
+const isSame = function(p, q) {
+  if (!p || !q) return p == q
+  return p.val === q.val && isSame(p.left, q.left) && isSame(p.right, q.right)
+
+}
+```
+## 101. Symmetric Tree  
+[link](https://leetcode.com/problems/symmetric-tree/)  
+```javascript
+const isSymmetric = function(root) {
+  if (!root) return true
+  return isMirror(root.left, root.right)
+
+  function isMirror(l, r) {
+    if (!l || !r) return l == r
+    return l.val === r.val && isMirror(l.left, r.right) && isMirror(l.right, r.left)
+  }
+}
+```
 ## 102. Binary Tree Level Order Traversal  
 [link](https://leetcode.com/problems/binary-tree-level-order-traversal/)
 ```javascript
@@ -428,6 +512,52 @@ const levelOrder = function(root) {
       if (cur.right) q.push(cur.right)
     }
     res.push(tmp)
+  }
+  return res
+}
+```
+## 103. Binary Tree Zigzag Level Order Traversal  
+[link](https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/)  
+```javascript
+const zigzagLevelOrder = function(root) {
+  // dfs
+  if (!root) return []
+  const res = []
+  dfs(root, 0)
+  return res
+
+  function dfs(node, l) {
+    if (!node) return
+    if (!res[l]) res[l] = []
+    if (l & 1) res[l].unshift(node.val)
+    else res[l].push(node.val)
+    dfs(node.left, l + 1)
+    dfs(node.right, l + 1)
+  }
+
+  // bfs
+  if (!root) return []
+  let q = [root]
+  const res = []
+  let zigzag = true
+
+  while (q.length) {
+    const len = q.length
+    const tmp = [], next = []
+    while (q.length) {
+      let cur = q.pop() // ATT
+      tmp.push(cur.val)
+      if (zigzag) {  // ATT
+        if (cur.left) next.push(cur.left)
+        if (cur.right) next.push(cur.right)
+      } else {
+        if (cur.right) next.push(cur.right)
+        if (cur.left) next.push(cur.left)
+      }
+    }
+    res.push(tmp)
+    zigzag = !zigzag
+    q = next
   }
   return res
 }
@@ -560,6 +690,24 @@ const pathSum = function(root, sum) {
   }
 }
 ```
+## 114. Flatten Binary Tree to Linked List  
+[link](https://leetcode.com/problems/flatten-binary-tree-to-linked-list/)  
+```javascript
+const flatten = function(root) {
+  let cur = root
+  while (cur) {
+    if (cur.left) {
+      let pre = cur.left
+      while (pre.right) {pre = pre.right}
+      pre.right = cur.right
+      cur.right = cur.left
+      cur.left = null
+    }
+    cur = cur.right
+  }
+}
+// O(N)
+```
 ## 121. Best Time to Buy and Sell Stock  
 [link](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/)  
 ```javascript
@@ -625,7 +773,7 @@ const longestConsecutive = function(nums) {
   let set = new Set(nums)
   let cur = 0, max = 0
   for (let num of nums) {
-    if (!set.has(num - 1)) {
+    if (!set.has(num - 1)) { // make sure 
       let tmp = num
       while (set.has(tmp++)) {
         cur++
@@ -855,16 +1003,16 @@ const rightSideView = function(root) {
 
   // bfs
   if (!root) return []
-  const res = [root.val], q = [root]
+  let q = [root]
+  let res = [root.val]
   while (q.length) {
-    let nxt = []
-    while (q.length) {
-      let node = q.shift()
-      if (node.left) nxt.push(node.left)
-      if (node.right) nxt.push(node.right)
+    const len = q.length
+    for (let i = 0; i < len; i++) {
+      let cur = q.shift()
+      if (cur.left) q.push(cur.left)
+      if (cur.right) q.push(cur.right)
     }
-    if (nxt[nxt.length - 1]) res.push(nxt[nxt.length - 1].val)
-    q = nxt
+    if (q[q.length - 1]) res.push(q[q.length - 1].val)
   }
   return res
 
@@ -955,6 +1103,24 @@ const findKthLargest = function(nums, k) {
 }
 // O(N)  worst O(N^2)
 ```
+## 221. Maximal Square  
+[link](https://leetcode.com/problems/maximal-square/)  
+```javascript
+const maximalSquare = function(matrix) {
+  if (!matrix.length || !matrix[0].length) return 0
+  const dp = [...new Array(matrix.length + 1)].map(_ => new Array(matrix[0].length + 1).fill(0))
+  let max = 0
+  for (let i = 1; i < dp.length; i++) {
+    for (let j = 1; j < dp[0].length; j++) {
+      if (matrix[i - 1][j - 1] == 1) {
+        dp[i][j] = Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]) + 1
+        max = Math.max(dp[i][j], max)
+      }
+    }
+  }
+  return max * max
+}
+```
 ## 230. Kth Smallest Element in a BST  
 [link](https://leetcode.com/problems/kth-smallest-element-in-a-bst/)
 ```javascript
@@ -1010,6 +1176,21 @@ const lowestCommonAncestor = function(root, p, q) {
   let left = lowestCommonAncestor(root.left, p, q)
   let right = lowestCommonAncestor(root.right, p, q)
   return (left && right) ? root : (left || right)
+}
+```
+## 283. Move Zeros  
+[link](https://leetcode.com/problems/move-zeroes/)  
+```javascript
+const moveZeroes = function(nums) {
+  let idx = 0  // index of zeros(sometimes may the same then idx++)
+  // one pass find the non-zero and swap with zero , then idx++
+  for (let i = 0; i < nums.length; i++) {
+    if (nums[i] !== 0) {
+      nums[idx] = nums[i]
+      nums[i] = idx === i ? nums[i] : 0
+      idx++
+    }
+  }
 }
 ```
 ## 297. Serialize and Deserialize Binary Tree  
@@ -1098,15 +1279,19 @@ const topKFrequent = function(nums, k) {
   for (let num of nums) {
     map[num] = ~~map[num] + 1
   }
+  // map will be in order 
+  // map[num] = i means num shows i times
   for (let num in map) {
     bucket[map[num]].push(num | 0)
   }
+  // bucket[i] = [num] means num show i times
   for (let i = nums.length; i >= 0 && k > 0; k--) {
     while (bucket[i].length === 0) i--
-    res.push(bucket[i].shift())
+    res.push(bucket[i].pop())
   }
   return res
 }
+// O(N)
 ```
 ## 415. Add Strings  
 [link](https://leetcode.com/problems/add-strings/)  
@@ -1156,6 +1341,95 @@ const addTwoNumbers = function(l1, l2) {
 
 }
 ```
+## 460. LFU Cache  
+[link](https://leetcode.com/problems/lfu-cache/)  
+```javascript
+class Node {
+  constructor(key, value) {
+    this.key = key
+    this.val = value
+    this.next = this.prev = null
+    this.freq = 1
+  }
+}
+
+class DoublyLinkedList {
+  contructor() {
+    this.head = new Node(null, null)
+    this.tail = new Node(null, null)
+    this.head.next = this.tail
+    this.tail.prev = this.head
+  }
+
+  insertHead(node) {
+    node.prev = this.head
+    node.next = this.head.next
+    this.head.next.prev = node
+    this.head.next = node
+  }
+  removeNode(node) {
+    node.prev.next = node.next
+    node.next.prev = node.prev
+  }
+  removeTail() {
+    let tail = this.tail.prev
+    this.removeNode(tail)
+    return tail.key
+  }
+  isEmpty() {
+    return this.head.next.val == null
+  }
+}
+let LFUCache = function(capacity) {
+  this.capacity = capacity
+  this.currentSize = 0
+  this.leastFreq = 0
+  this.nodeHash = new Map()
+  this.freqHash = new Map()
+}
+
+LFUCache.prototype.get = function(key) {
+  let node = this.nodeHash.get(key)
+  if (!node) return -1
+  // remove node in  freq list
+  this.freqHash.get(node.freq).removeNode(node)
+  // check whether it's least freq and are there nodes left 
+  // if none, leastFreq++ 
+  if (node.freq == this.leastFreq && this.freqHash.get(node.freq).isEmpty()) this.leastFreq++
+  node.freq++
+  // check whether there're nodes that are the same with the new freq
+  // if none, new a list
+  if (this.freqHash.get(node.freq) == null) this.freqHash.set(node.freq, new DoublyLinkedList())
+  // insert Head
+  this.freqHash.get(node.freq).insertHead(node)
+  return node.val
+}
+
+LFUCache.prototype.put = function(key, value) {
+  if (!this.capacity) return 
+  let node = this.nodeHash.get(key)
+  if (!node) { // new node
+    this.currentSize++
+    if (this.currentSize > this.capacity) {
+      let tailKey = this.freqHash.get(this.leastFreq).removeTail()
+      this.nodeHash.delete(tailKey)
+      this.currentSize--
+    }
+    let newNode = new Node(key, value)
+    if (this.freqHash.get(1) == null) this.freqHash.set(1, new DoublyLinkedLlist())
+    this.freqHash.get(1).insertHead(newNode)
+    this.nodeHash.set(key, newNode)
+    this.leastFreq = 1
+  } else { // existed
+    node.val = value
+    this.freqHash.get(node.freq).removeNode(key)
+    if (node.freq === this.leastFreq && this.freqHash.get(node.freq).isEmpty()) this.leastFreq++
+    node.freq++
+    if (this.freqHash.get(node.freq) == null) this.freqHash.set(node.freq, new DoublyLinkedList())
+    this.freqHash.set(node.freq).insertHead(node)
+  }
+}
+```
 ## 496. Next Greater Element I  
 [link](https://leetcode.com/problems/next-greater-element-i/)  
 ```javascript
@@ -1174,6 +1448,28 @@ const nextGreaterElemenet = function(nums1, nums2) {
   return nums1
 }
 // O(N)
+```
+## 494. Target Sum //TODO  
+[link](https://leetcode.com/problems/target-sum/)  
+```javascript
+const findTargetSumWays = function(nums, S) {
+  let sum = 0 
+  for (let num of nums) {sum += num}
+  if (sum < S || -sum > S) return 0
+  const dp = Array(2 * sum + 1).fill(0)
+  dp[0 + sum] = 1
+  for (let i = 0; i < nums.length; i++) {
+    let next = new Array(2 * sum + 1).fill(0)
+    for (let k = 0; k < 2 * sum + 1; k++) {
+      if (dp[k] != 0) {
+        next[k + nums[i]] += dp[k]
+        next[k - nums[i]] += dp[k]
+      }
+    }
+    dp = next
+  }
+  return dp[sum + S]
+}
 ```
 ## 503. Next Greater Element II  
 [link](https://leetcode.com/problems/next-greater-element-ii/)  
@@ -1202,6 +1498,15 @@ const fib = function(N) {
     dp[i] = dp[i - 1] + dp[i - 2]
   }
   return dp[N]
+
+  // memo
+  let first = 0
+  let second = 1
+  while (N > 2) {
+    [first, second] = [second, first + second]
+    N--
+  }
+  return N ? first + second : 0
 }
 ```
 ## 515. Find Largest Value in Each Tree Row  
@@ -1305,6 +1610,50 @@ const pruneTree = function(root) {
   return (!root.left && !root.right && root.val === 0) ? null : root
 }
 ```
+## 842. Split Array into Fibonacci Sequence  
+[link](https://leetcode.com/problems/split-array-into-fibonacci-sequence/)  
+```javascript
+const splitIntoFibonacci = function(S) {
+  const res = []
+  helper(0, [])
+  return res
+
+  function helper(idx, tmp) {
+    if (idx === S.length && tmp.length > 2) {
+      res = tmp.slice()
+      return
+    } else {
+      for (let i = idx; i < S.length; i++) {
+        if (S[idx] === '0' && i != idx) return
+        let num = S.slice(idx, i + 1) | 0
+        if (num > Math.pow(2, 31) - 1) return
+        if (tmp.length < 2 || tmp[tmp.length - 2] + tmp[tmp.length - 1] == num) {
+          // choose
+          tmp.push(num)
+          // explore
+          helper(i + 1, tmp)
+          // un-choose
+          tmp.pop()
+        }
+      }
+    }
+  }
+}
+```
+## 876. Middle of the Linked List  
+[link](https://leetcode.com/problems/middle-of-the-linked-list/)  
+```javascript
+const middleNode = function(head) {
+  let fast = head
+  let slow = head
+  while (fast && fast.next) {
+    fast = fast.next.next
+    slow = slow.next
+  }
+  return slow
+}
+
+```
 ## 958. Check Completeness of a Binary Tree  
 [link](https://leetcode.com/problems/check-completeness-of-a-binary-tree/)  
 ```javascript
@@ -1312,12 +1661,12 @@ const isCompleteTree = function(root) {
   if (!root) return true
   let end = false
   let q = [root]
-  while (q.length) {
+  while (q.length) { 
     let cur = q.shift()
     if (cur == null) end = true
     else {
       if (end) return false
-      q.push(cur.left)
+      q.push(cur.left)  // no need worry about the null
       q.push(cur.right)
     }
   }
