@@ -35,13 +35,15 @@ const addTwoNumbers = function(l1, l2) {
 ```javascript
 const lengthOfLongestSubstring = function(s) {
   let map = new Map()
-  let head = 0, res = 0
+  let head = -1
+  let max = 0
+  
   for (let i = 0; i < s.length; i++) {
-    if (map.has(s[i]) && map.get(s[i]) >= head) head = map.get(s[i]) + 1
+    if (map.has(s[i]) && map.get(s[i]) >= head) head = map.get(s[i])
     map.set(s[i], i)
-    res = Math.max(res, i - head + 1)
+    max = Math.max(i - head, max)
   }
-  return res
+  return max
 }
 ```
 ## 4. Median Of Two Sorted Arrays  
@@ -118,6 +120,32 @@ const threeSum = function(nums) {
         while (nums[k] === nums[k + 1]) k--
       } else if (nums[i] + nums[j] + nums[k] > 0) k--
       else j++
+    }
+  }
+  return arr
+}
+```
+## 18. 4Sum  
+[link](https://leetcode.com/problems/4sum/)  
+```javascript
+  let arr = []
+  nums = nums.sort((a, b) => a - b)
+
+  for (let i = 0; i < nums.length - 3; i++) {
+    if (i > 0 && nums[i] == nums[i - 1]) continue
+    for (let j = i + 1; j < nums.length - 2; j++) {
+      if (j > i + 1 && nums[j] == nums[j - 1]) continue
+      for (let m = j + 1, n = nums.length - 1; m < n;) {
+        if (nums[i] + nums[j] + nums[m] + nums[n] == target) {
+          arr.push([nums[i], nums[j], nums[m], nums[n]])
+          m++
+          n--
+          while (m < n && nums[m - 1] == nums[m]) m++
+          while (m < n && nums[n] == nums[n + 1]) n--
+        }
+        else if (nums[i] + nums[j] + nums[m] + nums[n] - target > 0) n--
+        else m++
+      }
     }
   }
   return arr
@@ -562,6 +590,28 @@ const zigzagLevelOrder = function(root) {
   return res
 }
 ```
+## 104. Maximum Depth Of Binary Tree  
+[link](https://leetcode.com/problems/maximum-depth-of-binary-tree/)  
+```javascript
+const maxDepth = function(root) {
+  // bfs
+  if (!root) return 0
+  let q = [root]
+  let cnt = 0
+  while (q.length) {
+    let nxt = []
+    while (q.length) {
+      let cur = q.shift()
+      if (cur.left) nxt.push(cur.left)
+      if (cur.right) nxt.push(cur.right)
+    }
+    q = nxt 
+    cnt++
+  }
+  return cnt
+}
+
+```
 ## 105. Construct Binary Tree from Preorder and Inorder Traversal  
 [link](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
 ```javascript
@@ -631,7 +681,7 @@ const isBalanced = function(root) {
     if (r === -1) return -1
 
     if (Math.abs(l - r) > 1) return -1
-    return Math.min(l, r) + 1
+    return Math.max(l, r) + 1
   }
 }
 ```
@@ -740,10 +790,10 @@ const maxProfit = function(prices) {
   let hold1 = -Infinity, hold2 = -Infinity
   let sell1 = 0, sell2 = 0
   prices.map(p => {
-    hold1 = Math.max(hold1, -p)
-    sell1 = Math.max(sell1, hold1 + p)
-    hold2 = Math.max(hold2, sell1 - p)
     sell2 = Math.max(sell2, hold2 + p)
+    hold2 = Math.max(hold2, sell1 - p)
+    sell1 = Math.max(sell1, hold1 + p)
+    hold1 = Math.max(hold1, -p)
   })
   return sell2
 };
@@ -773,7 +823,7 @@ const longestConsecutive = function(nums) {
   let set = new Set(nums)
   let cur = 0, max = 0
   for (let num of nums) {
-    if (!set.has(num - 1)) { // make sure 
+    if (!set.has(num - 1)) { // make sure it's the min 
       let tmp = num
       while (set.has(tmp++)) {
         cur++
@@ -962,6 +1012,21 @@ const getIntersectionNode = function(headA, headB) {
     b = b == null ? headA : b.next
   }
   return a
+}
+```
+
+## 162. Find Peak Element  
+[link](https://leetcode.com/problems/find-peak-element/)  
+```javascript
+const findPeakElement = function(nums) {
+  let lo = 0, hi = nums.length - 1
+  while (lo < hi) {
+    let mid = lo + ((hi - lo) >> 1)
+    // make each bound true
+    if (nums[mid] < nums[mid + 1]) lo = mid + 1
+    else hi = mid
+  }
+  return lo
 }
 ```
 ## 188. Best Time to Buy and Sell Stock IV  
@@ -1190,6 +1255,34 @@ const moveZeroes = function(nums) {
       nums[i] = idx === i ? nums[i] : 0
       idx++
     }
+  }
+}
+```
+## 286. Walls and Gates  
+[link](https://leetcode.com/problems/walls-and-gates/)  
+```javascript
+const wallsAndGates = function(rooms) {
+  if (!rooms || !rooms.length || !rooms[0].length) return
+  let q = []
+  for (let i = 0; i < rooms.length; i++) {
+    for (let j = 0; j < rooms[0].length; j++) {
+      if (rooms[i][j] == 0) q.push([i, j])
+    }
+  }
+  while (q.length) {
+    let [x, y] = q.shift()
+    let directions = [-1, 0, 1, -1, 0]
+    for (let i = 0; i < directions.length - 1; i++) {
+      let newX = x + directions[i]
+      let newY = y + directions[i + 1]
+      if (!outOfBound(newX, newY) && rooms[newX][newY] == 2147483647) {
+        rooms[newX][newY] = rooms[i][j] + 1
+        q.push([newX, newY])
+      }
+    }
+  }
+  function outOfBound(x, y) {
+    return x < 0 || y < 0 || x >= rooms.length || y >= rooms[0].length
   }
 }
 ```
