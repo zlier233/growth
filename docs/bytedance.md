@@ -272,11 +272,11 @@ const search = function(nums, target) {
 ## 41. First Missing Positive  
 [link](https://leetcode.com/problems/first-missing-positive/)  
 ```javascript
-const irstMissingPositive = function(nums) {
+const firstMissingPositive = function(nums) {
   // put each num in right place
   // missing num in range 1 ~ nums.length
   for (let i = 0; i < nums.length; i++) {
-    while (nums[i] > 0 && nums[i] <= nums.length && nums[i] != nums[nums[i] - 1]) {
+    while (nums[i] > 0 && nums[i] <= nums.length && nums[i] != nums[nums[i] - 1]) { // ATT
       swap(i, nums[i] - 1)
     }
   }
