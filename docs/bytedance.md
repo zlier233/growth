@@ -934,6 +934,22 @@ const reorderList = function(head) {
   }
 }
 ```
+## Odd Increase Even Decrease  
+```javascript
+const reord = function(head) {
+  if (!head || !head.next) return head
+  let odd = head
+  let even = head.next
+  let curOdd = odd
+  let curEven = even
+  while (curOdd && curOdd.next) {
+    curOdd.next = curOdd.next.next
+    curOdd = curOdd.next
+  }
+
+}
+
+```
 ## 146. LRU Cache  
 [link](https://leetcode.com/problems/lru-cache/)  
 ```javascript
@@ -1163,6 +1179,24 @@ var reverseList = function(head) {
   return newHead
 }
 ```
+## 209. Minimum Size Subarray Sum  
+[link](https://leetcode.com/problems/minimum-size-subarray-sum/)  
+```javascript
+const minSubArrayLen = function(s, nums) {
+  let lo = 0, hi = 0
+  const len = nums.length
+  let cur = Infinity
+  let sum = 0
+  while (hi < len) {
+    sum += nums[hi++]
+    while (sum >= s) {
+      cur = Math.min(cur, hi - lo)
+      sum -= nums[lo++]
+    }
+  }
+  return cur == Infinity ? 0 : cur
+}
+```
 ## 215. Kth Largest Element in an Array  // TODO
 [link](https://leetcode.com/problems/kth-largest-element-in-an-array/)  
 ```javascript
@@ -1272,6 +1306,23 @@ const lowestCommonAncestor = function(root, p, q) {
   return (left && right) ? root : (left || right)
 }
 ```
+## 264. Ugly Number II  
+[link](https://leetcode.com/problems/ugly-number-ii/)  
+```javascript
+const nthUglyNumber = function(n) {
+  if (n <= 0) return
+  let dp = Array(n).fill(0)
+  let pt2 = 0, pt3 = 0, pt5 = 0
+  dp[0] = 1
+  for (let i = 1; i < n; i++) {
+    dp[i] = Math.min(dp[pt2] * 2, dp[pt3] * 3, dp[pt5] * 5)
+    if (dp[i] === dp[pt2] * 2) pt2++
+    if (dp[i] === dp[pt3] * 3) pt3++
+    if (dp[i] === dp[pt5] * 5) pt5++
+  }
+  return dp[n - 1]
+}
+```
 ## 283. Move Zeros  
 [link](https://leetcode.com/problems/move-zeroes/)  
 ```javascript
@@ -1363,6 +1414,26 @@ const maxProfit = function(prices) {
   return sell
 }
 ```
+## 315. Count of Smaller Numbers After Self  
+[link](https://leetcode.com/problems/count-of-smaller-numbers-after-self/)  
+```javascript
+const countSmaller = function(nums) {
+  let arr = []
+  let res = new Array(nums.length).fill(0)
+
+  for (let i = nums.length - 1; i >= 0; i--) {
+    let lo = 0, hi = arr.length
+    while (lo < hi) {
+      let mid = lo + ((hi - lo) >> 1)
+      if (arr[mid] < nums[i]) lo = mid + 1
+      else hi = mid
+    }
+    res[i] = lo
+    arr.splice(lo, 0, nums[i])
+  }
+  return res
+}
+```
 ## 322. Coin Change  
 [link](https://leetcode.com/problems/coin-change/)  
 ```javascript
@@ -1415,6 +1486,22 @@ const topKFrequent = function(nums, k) {
   return res
 }
 // O(N)
+```
+## 394. Decode String  
+[link](https://leetcode.com/problems/decode-string/)  
+```javascript
+const decodeString = function(s) {
+  const stack = [[1, '']]
+
+
+
+  function isDigit(c) { return /[0-9]/.test(c) }
+  function parseNumber(s, start) {
+    let i = start 
+    while (isDigit(s[i])) {i++}
+    return s.substring(start, i)
+  }
+}
 ```
 ## 415. Add Strings  
 [link](https://leetcode.com/problems/add-strings/)  
