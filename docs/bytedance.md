@@ -225,27 +225,27 @@ const mergeKLists = function(lists) {
 [link](https://leetcode.com/problems/reverse-nodes-in-k-group/)  
 ```javascript
 const reverseKGroup = function(head, k) {
+  if (!head) return head
   let dummy = new ListNode(0)
   dummy.next = head
-  let h = dummy
-  while (h) {
-    let node = h
+  let pointer = dummy
+  while (pointer) {
+    let node = pointer
     for (let i = 0; i < k && node; i++) {
       node = node.next
     }
-    if (node == null) break
-    
-    let prev = null, cur = h.next, next = null
+    if (!node) break
+    let pre = null, cur = pointer.next, next = null
     for (let i = 0; i < k; i++) {
       next = cur.next
-      cur.next = prev
-      prev = cur
+      cur.next = pre
+      pre = cur
       cur = next
     }
-    let tail = h.next
+    let tail = pointer.next
     tail.next = cur
-    h.next = prev
-    h = tail
+    pointer.next = pre
+    pointer = tail
   }
   return dummy.next
 }
@@ -454,7 +454,7 @@ const deleteDuplicates = function(head) {
 }
 ```
 
-## 88 Merge Sorted Array  
+## 88. Merge Sorted Array  
 [link](https://leetcode.com/problems/merge-sorted-array/)
 ```javascript
 const merge = function(nums1, m, nums2, n) {
@@ -492,6 +492,18 @@ const reverseBetween = function(head, m, n) {
 [link](https://leetcode.com/problems/same-tree/)  
 ```javascript
 const isSame = function(p, q) {
+  // bfs
+  let stack = [[p, q]]
+  while (stack.length) {
+    let [n1, n2] = stack.pop()
+    if (!n1 && !n2) continue
+    if (!n1 || !n2 || n1.val !== n2.val) return false
+    stack.push([n1.left, n2.left])
+    stack.push([n1.right, n2.right])
+  }
+  return true
+  
+  // dfs
   if (!p || !q) return p == q
   return p.val === q.val && isSame(p.left, q.left) && isSame(p.right, q.right)
 
@@ -501,6 +513,18 @@ const isSame = function(p, q) {
 [link](https://leetcode.com/problems/symmetric-tree/)  
 ```javascript
 const isSymmetric = function(root) {
+  // bfs
+  if (!root) return true
+  let stack = [[root.left, root.right]]
+  while (stack.length) {
+    let [l, r] = stack.shift()
+    if (!l && !r) continue
+    if (!l || !r || l.val !== r.val) return false
+    stack.push([l.left, r.right])
+    stack.push([l.right, r.left])
+  }
+  return true
+  // dfs
   if (!root) return true
   return isMirror(root.left, root.right)
 
@@ -531,15 +555,17 @@ const levelOrder = function(root) {
   if (!root) return []
   let q = [root], res = []
   while (q.length) {
-    const len = q.length
     let tmp = []
-    for (let i = 0; i < len; i++) {
+    let next = []
+    while (q.length) {
       let cur = q.shift()
       tmp.push(cur.val)
-      if (cur.left) q.push(cur.left)
-      if (cur.right) q.push(cur.right)
+      if (cur.left) next.push(cur.left)
+      if (cur.right) next.push(cur.right)
     }
     res.push(tmp)
+    q = next
+
   }
   return res
 }
@@ -691,17 +717,18 @@ const isBalanced = function(root) {
 const minDepth = function(root) {
   // bfs
   if (!root) return 0
+  let cnt = 0
   let q = [root]
-  let dpt = 0
   while (q.length) {
-    dpt++
-    let len = q.length
-    for (let i = 0; i < len; i++) {
+    let nxt = []
+    cnt++
+    while (q.length) {
       let cur = q.shift()
-      if (!cur.left && !cur.right) return dpt
-      if (cur.left) q.push(cur.left)
-      if (cur.right) q.push(cur.right)
+      if (!cur.left && !cur.right) return cnt
+      if (cur.left) nxt.push(cur.left)
+      if (cur.right) nxt.push(cur.right)
     }
+    q = nxt
   }
   // dfs
   if (!root) return 0
@@ -839,6 +866,7 @@ const longestConsecutive = function(nums) {
 [link](https://leetcode.com/problems/word-break/)  
 ```javascript
 const wordBreak = function(s, wordDict) {
+  // dp[i] means whether s[0, i] could be sperated by words in wordDict
   let len = s.length, dp = new Array(len + 1)
   for (let i = 0; i <= len; i++) { dp[i] = false }
   dp[0] = true
@@ -850,6 +878,8 @@ const wordBreak = function(s, wordDict) {
       }
     }
   }
+  return dp[len]
+}
 ```
 ## 141. Linked List Cycle  
 [link](https://leetcode.com/problems/linked-list-cycle/)
@@ -1101,13 +1131,12 @@ const numIslands = function(grid) {
   return cnt
 
   function dfs(x, y) {
-    if (x < 0 || y < 0 || x >= m || y >= n || grid[x][y] !== '1') return 
     grid[x][y] = '0'
     let directions = [-1, 0, 1, 0, -1]
     for (let i = 0; i < directions.length - 1; i++) {
       let newX = x + directions[i]
       let newY = y + directions[i + 1]
-      dfs(newX, newY)
+      if (!outOfBound(newX, newY) && grid[newX][newY] == 1) dfs(newX, newY)
     }
   }
 }
@@ -1276,7 +1305,7 @@ const wallsAndGates = function(rooms) {
       let newX = x + directions[i]
       let newY = y + directions[i + 1]
       if (!outOfBound(newX, newY) && rooms[newX][newY] == 2147483647) {
-        rooms[newX][newY] = rooms[i][j] + 1
+        rooms[newX][newY] = rooms[x][y] + 1
         q.push([newX, newY])
       }
     }
@@ -1374,6 +1403,7 @@ const topKFrequent = function(nums, k) {
   }
   // map will be in order 
   // map[num] = i means num shows i times
+  // then buckets' indexes are the apperance times
   for (let num in map) {
     bucket[map[num]].push(num | 0)
   }
@@ -1418,7 +1448,7 @@ const addTwoNumbers = function(l1, l2) {
   }
 
   let dummy = new ListNode(0)
-  let cur = null, next = null
+  let cur = null
   let carry = 0
   while (s1.length || s2.length || carry) {
     carry += s1.length ? s1.pop() : 0
@@ -1426,9 +1456,8 @@ const addTwoNumbers = function(l1, l2) {
     cur = new ListNode(carry % 10)
     carry = carry / 10 | 0
      // just insert the new cur between dummy and next
+    cur.next = dummy.next
     dummy.next = cur
-    cur.next = next
-    next = cur
   }
   return dummy.next
 
@@ -1635,11 +1664,18 @@ const change = function(amount, coins) {
 [link](https://leetcode.com/problems/diameter-of-binary-tree/)
 ```javascript
 const diameterOfBinaryTree = function(root) {
-  return dpt(root.left) + dpt(root.right)
+  if (!root) return 0
+  let max = 0
+  dpt(root)
+  return max
   
   function dpt(node) {
     if (!node) return 0
-    return 1 + Math.max(dpt(node.left), dpt(node.right))
+    let l = dpt(node.left)
+    let r = dpt(node.right)
+    
+    max = Math.max(l + r, max)
+    return 1 + Math.max(l, r)
   }
 }
 ```
@@ -1789,12 +1825,10 @@ const orangesRotting = function(grid) {
       for (let i = 0; i < directions.length; i++) {
         let newX = x + directions[i]
         let newY = y + directions[i + 1]
-        if (!outOfBound(newX, newY)) {
-          if (grid[newX][newY] == 1) {
-            grid[newX][newY] = 2
-            fresh--
-            next.push([newX, newY])
-          }
+        if (!outOfBound(newX, newY) && grid[newX][newY] == 1) {
+          grid[newX][newY] = 2
+          fresh--
+          next.push([newX, newY])
         }
       }
     }
