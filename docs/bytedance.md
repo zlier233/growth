@@ -307,6 +307,39 @@ const trap = function(height) {
   return res
 }
 ```
+## 48. Rotate Image  
+[link](https://leetcode.com/problems/rotate-image/)  
+```javascript
+const rotate = function(matrix) {
+  // clockwise
+  // first up and down reverse
+  // then anti-diag reverse
+  let m = matrix.length
+  let n = matrix[0].length
+  let midM = matrix.length >> 1
+  for (let i = 0; i < midM; i++) {
+    for (let j = 0; j < n; j++) {
+      swap(i, j, m - i - 1, j)
+    }
+  }
+  
+  for (let i = 0; i < m; i++) {
+    for (let j = i + 1; j < n; j++) {
+      swap(i, j, j, i)
+    }
+  }
+  
+  
+  function swap(x, y, m, n) {
+    let tmp = matrix[x][y]
+    matrix[x][y] = matrix[m][n]
+    matrix[m][n] = tmp
+  }
+  // anti-clockwise
+  // first left and right reverse
+  // then anti-diag reverse
+}
+```
 ## 54. Spiral Matrix  
 [link](https://leetcode.com/problems/spiral-matrix/)
 ```javascript
@@ -862,6 +895,69 @@ const longestConsecutive = function(nums) {
   return max
 }
 ```
+## 136. Single Number  
+[link](https://leetcode.com/problems/single-number/)  
+```javascript
+const singleNumber = function(nums) {
+  // map
+  let map = new Map()
+  for (let num of nums) {
+    if (!map.has(num)) {
+      map.set(num, 1) 
+    } else {
+      map.delete(num)
+    }
+  }
+  return map.keys().next().value
+  // xor
+  let res = nums[0]
+  for (let i = 1; i < nums.length; i++) {
+    res ^= nums[i]
+  }
+  return res
+}
+```
+## 138. Copy List with Random Pointer  
+[link](https://leetcode.com/problems/copy-list-with-random-pointer/)  
+```javascript
+const copyRandomList = function(head) {
+  let pointer = head
+  let next = null
+
+  while (pointer) {
+    next = pointer.next
+    let copy = new Node(pointer.val)
+    pointer.next = copy
+    copy.next = next
+
+    pointer = next
+  }
+
+  pointer = head
+  while (pointer) {
+    if (pointer.random) {
+      pointer.next.random = pointer.random.next
+    }
+    pointer = pointer.next.next
+  }
+
+  pointer = head
+  let dummy = new Node(0)
+  let copy = null
+  let copyPointer = dummy
+  while (pointer) {
+    next = pointer.next.next
+    // extract copy
+    copy = pointer.next
+    copyPointer.next = copy
+    copyPointer = copy
+    // restore the origin list
+    pointer.next = next
+    pointer = next
+  }
+  return dummy.next
+}
+```
 ## 139. Word Break  
 [link](https://leetcode.com/problems/word-break/)  
 ```javascript
@@ -895,6 +991,27 @@ const hasCycle = function(head) {
   return false
 }
 
+```
+## 142. Linked List Cycle II  
+[link](https://leetcode.com/problems/linked-list-cycle-ii/)  
+```javascript
+const detectCycle = function(head) {
+  let slow = head
+  let fast = head
+  while (fast && fast.next) {
+    fast = fast.next.next
+    slow = slow.next
+    if (fast == slow) {
+      let tool = head
+      while (tool != slow) {
+        tool = tool.next
+        slow = slow.next
+      }
+      return tool
+    }
+  }
+  return null
+}
 ```
 ## 143. Reorder List  
 [link](https://leetcode.com/problems/reorder-list/)  
@@ -1536,6 +1653,47 @@ const addStrings = function(num1, num2) {
   return res
 }
 ```
+## 438. Find All Anagrams in a String  
+[link](https://leetcode.com/problems/find-all-anagrams-in-a-string/)  
+```javascript
+const findAnagrams = function(s, p) {
+  let unique = 0
+  let map = new Map()
+  for (let c of p) {
+    if (map[c] == null) {
+      unique++
+      map[c] = 1
+    } else map[c]++
+  }
+  let lo = 0, hi = 0
+  const res = []
+  for (hi; hi < s.length; hi++) {
+    if (map[s[hi]] != null) map[s[hi]]--
+    if (map[s[hi]] == 0) unique--
+    if (unique === 0) res.push(lo)
+    if (hi - lo + 1 === p.length) {
+      if (map[s[lo]] != null) map[s[lo]]++
+      if (map[s[lo++]] === 1) unique++
+    }
+  }
+  return res
+}
+```
+## 442. Find All Duplicates in an Array  
+[link](https://leetcode.com/problems/find-all-duplicates-in-an-array/)  
+```javascript
+const findDuplicates = function(nums) {
+  const res = []
+  for (let i = 0; i < nums.length; i++) {
+    let idx = Math.abs(nums[i]) - 1
+    // set num appeared to negative
+    // when again < 0 means duplicated
+    if (nums[idx] < 0) res.push(idx + 1)
+    nums[idx] = -nums[idx]
+  }
+  return res
+}
+```
 ## 445. Add Two Numbers II  
 [link](https://leetcode.com/problems/add-two-numbers-ii/)  
 ```javascript
@@ -1564,6 +1722,23 @@ const addTwoNumbers = function(l1, l2) {
   }
   return dummy.next
 
+}
+```
+## 448. Find All Numbers Disappeared in an Array  
+[link](https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/)  
+```javascript
+const findDisappearedNumbers = function(nums) {
+  const res = []
+  for (let i = 0; i < nums.length; i++) {
+    let m = Math.abs(nums[i]) - 1
+    // meet the same do nothing, still negative
+    // then the num[idx] will be positive
+    nums[m] = nums[m] > 0 ? -nums[m] : nums[m]
+  }
+  for (let i = 0; i < nums.length; i++) {
+    if (nums[i] > 0) res.push(i + 1)
+  }
+  return res
 }
 ```
 ## 460. LFU Cache  
@@ -1782,6 +1957,39 @@ const diameterOfBinaryTree = function(root) {
   }
 }
 ```
+## 581. Shortest Unsorted Continuous Subarray  
+[link](https://leetcode.com/problems/shortest-unsorted-continuous-subarray/)  
+```javascript
+const findUnsortedSubarray = function(nums) {
+  let n = nums.length
+  // hi means the max index (after that is in right order)
+  // lo means the min index (before that is in right order)
+  let lo = -1, hi = -2
+  let min = nums[n - 1], max = nums[0]
+  for (let i = 1; i < n; i++) {
+    max = Math.max(nums[i], max)
+    min = Math.min(nums[n - i - 1], min)
+    // if nums[i] is less than max, means after the previous max
+    // there's a unorder element, then the hi moves to i
+    if (nums[i] < max) hi = i
+    if (nums[n - i - 1] > min) lo = n - i - 1
+  }
+  return hi - lo + 1
+}
+```
+## 617. Merge Two Binary Trees  
+[link](https://leetcode.com/problems/merge-two-binary-trees/)  
+```javascript
+const mergeTrees = function(t1, t2) {
+  if (!t1 && !t2) return null
+  let val = (t1 ? t1.val : 0) + (t2 ? t2.val : 0)
+  let node = new TreeNode(val)
+  node.left = mergeTrees(t1 && t1.left, t2 && t2.left)
+  node.right = mergeTrees(t1 && t1.right, t2 && t2.right)
+  return node
+}
+
+```
 ## 695.  Max Area of Island  
 [link](https://leetcode.com/problems/max-area-of-island/)  
 ```javascript
@@ -1827,6 +2035,22 @@ const maxProfit = function(prices, fee) {
     preSell = sell
   })
   return sell
+}
+```
+## 739. Daily Temperatures  
+[link](https://leetcode.com/problems/daily-temperatures/)  
+```javascript
+const dailyTemperatures = function(T) {
+  let stack = []
+  let res = new Array(T.length).fill(0)
+  for (let i = 0; i < T.length; i++) {
+    while (stack.length && T[i] > T[stack[stack.length - 1]]) {
+      let idx = stack.pop()
+      res[idx] = i - idx
+    }
+    stack.push(i)
+  }
+  return res
 }
 ```
 ## 814. Binary Tree Pruning  
