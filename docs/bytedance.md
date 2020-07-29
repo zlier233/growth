@@ -14,20 +14,20 @@ const twoSum = function(nums, target) {
 [link](https://leetcode.com/problems/add-two-numbers/)  
 ```javascript
 const addTwoNumbers = function(l1, l2) {
-  let cur = new ListNode(0)
-  let l0 = cur
   let carry = 0
+  let dummy = new ListNode(0)
+  let cur = dummy
   
   while (l1 || l2 || carry) {
-    let v1 = l1 ? l1.val : 0
-    let v2 = l2 ? l2.val : 0
-    cur.next = new ListNode((v1 + v2 + carry) % 10)
+    carry += l1 ? l1.val : 0
+    carry += l2 ? l2.val : 0
+    cur.next = new ListNode(carry % 10)
     cur = cur.next
-    carry = (v1 + v2 + carry) / 10 | 0
+    carry = carry / 10 | 0
     if (l1) l1 = l1.next
     if (l2) l2 = l2.next
   }
-  return l0.next
+  return dummy.next
 }
 ```
 ## 3. Longest Substring Without Repeating Characters  
@@ -96,7 +96,7 @@ const myAtoi = function(str) {
     } else break
   }
   res = res * sign
-  if (res > Math.pow(2, 31) - 1) return Math.pow(2, 31)
+  if (res > Math.pow(2, 31) - 1) return Math.pow(2, 31) - 1
   if (res < -Math.pow(2, 31)) return -Math.pow(2, 31)
   return res 
 }
@@ -108,7 +108,6 @@ const threeSum = function(nums) {
   let arr = []
   nums.sort((a, b) => a - b)
   for (let i = 0; i < nums.length - 2; i++) {
-    if (nums.length < 3) return arr
     if (nums[i] > 0) return arr
     if (i > 0 && nums[i] === nums[i - 1]) continue
     for (let j = i + 1, k = nums.length - 1; j < k;) {
@@ -116,8 +115,8 @@ const threeSum = function(nums) {
         arr.push([nums[i], nums[j], nums[k]])
         j++
         k--
-        while (nums[j] === nums[j - 1]) j++
-        while (nums[k] === nums[k + 1]) k--
+        while (j < k && nums[j] === nums[j - 1]) { j++ }
+        while (j < k && nums[k] === nums[k + 1]) { k-- }
       } else if (nums[i] + nums[j] + nums[k] > 0) k--
       else j++
     }
@@ -194,19 +193,19 @@ const generateParenthesis = function(n) {
 const mergeKLists = function(lists) {
   function mergeLists(a, b) {
     const dummy = new ListNode(0)
-    let tmp = dummy
+    let cur = dummy
     while (a && b) {
       if (a.val < b.val) {
-        tmp.next = a
+        cur.next = a
         a = a.next
       } else {
-        tmp.next = b
+        cur.next = b
         b = b.next
       }
-      tmp = tmp.next
+      cur = cur.next
     }
-    if (a) tmp.next = a
-    if (b) tmp.next = b
+    if (a) cur.next = a
+    if (b) cur.next = b
     return dummy.next
   }
     
@@ -418,17 +417,6 @@ const uniquePathsWithObstacles = function(obstacleGrid) {
   return dp[m - 1][n - 1]
 }
 ```
-## 69. Sqrt(x)  
-[link](https://leetcode.com/problems/sqrtx/)  
-```javascript
-const mySqrt = function(x) {
-  let hi = x
-  while (hi * hi > x) {
-    hi = (hi + x / hi) >> 1
-  }
-  return hi
-}
-```
 ## 67. Add Binary  
 [link](https://leetcode.com/problems/add-binary/)
 ```javascript
@@ -446,6 +434,27 @@ const addBinary = function(a, b) {
   return res
 }
 ```
+## 69. Sqrt(x)  
+[link](https://leetcode.com/problems/sqrtx/)  
+```javascript
+const mySqrt = function(x) {
+  // math
+  let hi = x
+  while (hi * hi > x) {
+    hi = (hi + x / hi) >> 1
+  }
+  return hi
+  // binary search
+  let lo = 0, hi = x
+  while (lo < hi) {
+    let mid = lo + ((hi - lo) >> 1)
+    if (mid * mid === x) return mid
+    else if (x > mid * mid) lo = mid + 1
+    else hi = mid
+  }
+  return x < lo * lo ? lo - 1 : lo
+}
+```
 ## 70. Climbing Stairs  
 [link](https://leetcode.com/problems/climbing-stairs/)
 ```javascript
@@ -458,6 +467,19 @@ const climbStairs = function(n) {
     dp[i] = dp[i - 1] + dp[i - 2]
   }
   return dp[n]
+  // memo
+  if (n <= 0) return 0
+  if (n === 1) return 1
+  if (n === 2) return 2
+  let oneStep = 2
+  let twoStep = 1
+  let sum = 0
+  for (let i = 2; i < n; i++) {
+    sum = oneStep + twoStep
+    twoStep = oneStep
+    oneStep = sum
+  }
+  return sum
 }
 ```
 ## 83. Remove Duplicates from Sorted List  
@@ -962,7 +984,7 @@ const copyRandomList = function(head) {
 [link](https://leetcode.com/problems/word-break/)  
 ```javascript
 const wordBreak = function(s, wordDict) {
-  // dp[i] means whether s[0, i] could be sperated by words in wordDict
+  // dp[i] means whether s[0, i - 1] could be sperated by words in wordDict
   let len = s.length, dp = new Array(len + 1)
   for (let i = 0; i <= len; i++) { dp[i] = false }
   dp[0] = true
@@ -1302,16 +1324,15 @@ var reverseList = function(head) {
 const minSubArrayLen = function(s, nums) {
   let lo = 0, hi = 0
   const len = nums.length
-  let cur = Infinity
-  let sum = 0
+  let min = Infinity, sum = 0
   while (hi < len) {
     sum += nums[hi++]
     while (sum >= s) {
-      cur = Math.min(cur, hi - lo)
+      min = Math.min(min, hi - lo)
       sum -= nums[lo++]
     }
   }
-  return cur == Infinity ? 0 : cur
+  return min == Infinity ? 0 : min
 }
 ```
 ## 215. Kth Largest Element in an Array  // TODO
@@ -1329,10 +1350,13 @@ const findKthLargest = function(nums, k) {
   return nums[k]
   
   function partition(nums, lo, hi) {
-    let i = lo, j = hi + 1
+    let i = lo, j = hi + 1   // ATT
     while (true) {
+      // find the nums[i] more than nums[lo]
       while (i < hi && nums[++i] < nums[lo]) {}
+      // find the nums[j] less than nums[lo]
       while (j > lo && nums[lo] < nums[--j]) {}
+      // if i is more than j, then no swap
       if (i >= j) break
       swap(i, j)
     }
@@ -1417,6 +1441,32 @@ const isPalindrome = function(head) {
 [link](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/)  
 ```javascript
 const lowestCommonAncestor = function(root, p, q) {
+  let parent = new Map()
+  let stack = []
+  parent.set(root, null)
+  stack.push(root)
+  
+  while (!parent.has(p) || !parent.has(q)) {
+    let node = stack.pop()
+    if (node.left) {
+      parent.set(node.left, node)
+      stack.push(node.left)
+    }
+    if (node.right) {
+      parent.set(node.right, node)
+      stack.push(node.right)
+    }
+  }
+  let ancestor = new Set()
+  while (p != null) {
+    ancestor.add(p)
+    p = parent.get(p)
+  }
+  while (!ancestor.has(q)) {
+    q = parent.get(q)
+  }
+  return q
+  // dfs
   if (!root || root == p || root == q) return root
   let left = lowestCommonAncestor(root.left, p, q)
   let right = lowestCommonAncestor(root.right, p, q)
@@ -1506,10 +1556,10 @@ const deserialize = function(data) {
 
   function helper() {
     if (data.length === 0) return
-    let next = data.shift()
-    if (next == null) return null
+    let cur = data.shift()
+    if (cur == null) return null
     else {
-      let node = new TreeNode(next)
+      let node = new TreeNode(cur)
       node.left = helper()
       node.right = helper()
       return node
@@ -1981,6 +2031,22 @@ const findUnsortedSubarray = function(nums) {
 [link](https://leetcode.com/problems/merge-two-binary-trees/)  
 ```javascript
 const mergeTrees = function(t1, t2) {
+  // bfs
+  if (!t1 || !t2) return t1 || t2
+  let stack = []
+  stack.push([t1, t2])
+  
+  while (stack.length) {
+    let [n1, n2] = stack.shift()
+    if (!n1 || !n2) continue
+    n1.val += n2.val
+    if (!n1.left) n1.left = n2.left
+    else stack.push([n1.left, n2.left])
+    if (!n1.right) n1.right = n2.right
+    else stack.push([n1.right, n2.right])
+  }
+  return t1
+  // dfs
   if (!t1 && !t2) return null
   let val = (t1 ? t1.val : 0) + (t2 ? t2.val : 0)
   let node = new TreeNode(val)
