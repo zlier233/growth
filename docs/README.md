@@ -1311,9 +1311,8 @@ const sortedArray = function(price, special, needs) {
 ## SORT  
 ### STRUCTURE CODE  
 ``` javascript
-const quickSort = function(nums) {
+const quickSort = function(nums, l, r) {
   if (nums.length < 2) return nums
-  let l = 0, r = nums.length - 1
   if (l < r) {
     let i = l, j = r, x = nums[l] // x pivot
     while (i < j) {
