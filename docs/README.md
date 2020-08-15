@@ -1743,7 +1743,7 @@ const shellSort = function(nums) {
       }
       nums[j + gap] = tmp
     }
-  }
+  }l
   return nums
 }
 ```
